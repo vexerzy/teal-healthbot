@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Bot, Brain, Flame, Github, Heart, LogIn, Mail, Shield, Weight, Ruler, Bed } from "lucide-react";
-import { useState } from "react";
+import { Bot, Brain, Flame, Github, Heart, LogIn, Mail, Shield, Weight, Ruler, Bed, Mic, MicOff } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -18,6 +19,56 @@ const Index = () => {
     sleepHours: "",
     conditions: ""
   });
+  const [isListening, setIsListening] = useState(false);
+  const [currentInput, setCurrentInput] = useState("");
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = true;
+
+        recognitionRef.current.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map(result => result[0])
+            .map(result => result.transcript)
+            .join("");
+          setCurrentInput(transcript);
+        };
+
+        recognitionRef.current.onerror = (event) => {
+          console.error(event.error);
+          setIsListening(false);
+          toast.error("Error with speech recognition. Please try again.");
+        };
+      }
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      toast.error("Speech recognition is not supported in your browser");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
+      toast.success("Listening...");
+    }
+  };
 
   const handleLogin = () => {
     setShowEmailForm(false);
@@ -27,6 +78,14 @@ const Index = () => {
   const handleHealthSubmit = () => {
     setShowHealthForm(false);
     setShowChat(true);
+  };
+
+  const handleSend = () => {
+    console.log("Sending message:", currentInput);
+    setCurrentInput("");
+    if (isListening) {
+      toggleListening();
+    }
   };
 
   return (
@@ -171,10 +230,28 @@ const Index = () => {
             </div>
             <div className="flex items-center space-x-2">
               <Input
-                placeholder="Type your health question..."
+                placeholder="Type or speak your health question..."
                 className="glass-panel"
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
               />
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Button
+                variant="outline"
+                size="icon"
+                className={`${isListening ? 'bg-primary text-primary-foreground' : ''} transition-colors`}
+                onClick={toggleListening}
+              >
+                {isListening ? (
+                  <MicOff className="h-4 w-4 animate-pulse" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
+              </Button>
+              <Button 
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={handleSend}
+                disabled={!currentInput.trim()}
+              >
                 Send
               </Button>
             </div>
