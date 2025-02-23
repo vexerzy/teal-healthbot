@@ -1,15 +1,33 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Bot, Brain, Github, LogIn, Mail, Shield } from "lucide-react";
+import { Bot, Brain, Flame, Github, Heart, LogIn, Mail, Shield, Weight, Ruler, Bed } from "lucide-react";
 import { useState } from "react";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showEmailForm, setShowEmailForm] = useState(false);
+  const [showHealthForm, setShowHealthForm] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [healthInfo, setHealthInfo] = useState({
+    age: "",
+    weight: "",
+    height: "",
+    sleepHours: "",
+    conditions: ""
+  });
+
+  const handleLogin = () => {
+    setShowEmailForm(false);
+    setShowHealthForm(true);
+  };
+
+  const handleHealthSubmit = () => {
+    setShowHealthForm(false);
+    setShowChat(true);
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
@@ -64,10 +82,107 @@ const Index = () => {
             </Button>
           </div>
         </div>
+      ) : showHealthForm ? (
+        <div className="w-full max-w-2xl animate-slideIn">
+          <Card className="p-8 glass-panel space-y-8">
+            <div className="text-center">
+              <Heart className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
+              <h2 className="text-2xl font-semibold mb-2">Let's Get to Know You Better</h2>
+              <p className="text-muted-foreground">Help us personalize your healthcare experience</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4 animate-fadeIn" style={{ animationDelay: "0.1s" }}>
+                <div className="flex items-center space-x-3">
+                  <Weight className="w-5 h-5 text-primary" />
+                  <Input
+                    type="number"
+                    placeholder="Weight (kg)"
+                    value={healthInfo.weight}
+                    onChange={(e) => setHealthInfo({ ...healthInfo, weight: e.target.value })}
+                    className="glass-panel"
+                  />
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Ruler className="w-5 h-5 text-primary" />
+                  <Input
+                    type="number"
+                    placeholder="Height (cm)"
+                    value={healthInfo.height}
+                    onChange={(e) => setHealthInfo({ ...healthInfo, height: e.target.value })}
+                    className="glass-panel"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4 animate-fadeIn" style={{ animationDelay: "0.2s" }}>
+                <div className="flex items-center space-x-3">
+                  <Heart className="w-5 h-5 text-primary" />
+                  <Input
+                    type="number"
+                    placeholder="Age"
+                    value={healthInfo.age}
+                    onChange={(e) => setHealthInfo({ ...healthInfo, age: e.target.value })}
+                    className="glass-panel"
+                  />
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Bed className="w-5 h-5 text-primary" />
+                  <Input
+                    type="number"
+                    placeholder="Average sleep hours"
+                    value={healthInfo.sleepHours}
+                    onChange={(e) => setHealthInfo({ ...healthInfo, sleepHours: e.target.value })}
+                    className="glass-panel"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="animate-fadeIn" style={{ animationDelay: "0.3s" }}>
+              <Input
+                placeholder="Any existing medical conditions?"
+                value={healthInfo.conditions}
+                onChange={(e) => setHealthInfo({ ...healthInfo, conditions: e.target.value })}
+                className="glass-panel"
+              />
+            </div>
+
+            <div className="flex justify-center">
+              <Button
+                size="lg"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 animate-fadeIn"
+                style={{ animationDelay: "0.4s" }}
+                onClick={handleHealthSubmit}
+              >
+                Continue to Chat
+              </Button>
+            </div>
+          </Card>
+        </div>
+      ) : showChat ? (
+        <div className="w-full max-w-4xl h-[80vh] animate-fadeIn">
+          <Card className="p-8 glass-panel h-full flex flex-col">
+            <div className="flex items-center justify-center mb-8">
+              <Flame className="w-16 h-16 text-primary animate-pulse" />
+            </div>
+            <div className="flex-grow overflow-y-auto mb-4 p-4">
+              {/* Chat messages will go here */}
+            </div>
+            <div className="flex items-center space-x-2">
+              <Input
+                placeholder="Type your health question..."
+                className="glass-panel"
+              />
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                Send
+              </Button>
+            </div>
+          </Card>
+        </div>
       ) : (
         <div className="w-full max-w-md animate-slideIn">
           <Card className="p-6 glass-panel">
-            <h2 className="text-2xl font-semibold mb-6 text-center">Sign In</h2>
             {showEmailForm ? (
               <div className="space-y-4">
                 <Input
@@ -82,7 +197,7 @@ const Index = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <Button className="w-full" onClick={() => console.log("Email login")}>
+                <Button className="w-full" onClick={handleLogin}>
                   Sign in with Email
                 </Button>
                 <div className="text-center">
@@ -97,10 +212,11 @@ const Index = () => {
               </div>
             ) : (
               <div className="space-y-4">
+                <h2 className="text-2xl font-semibold mb-6 text-center">Sign In</h2>
                 <Button
                   variant="outline"
                   className="w-full relative hover:bg-secondary"
-                  onClick={() => console.log("Google login")}
+                  onClick={handleLogin}
                 >
                   <svg
                     className="w-5 h-5 absolute left-4"
@@ -118,7 +234,7 @@ const Index = () => {
                 <Button
                   variant="outline"
                   className="w-full relative hover:bg-secondary"
-                  onClick={() => console.log("GitHub login")}
+                  onClick={handleLogin}
                 >
                   <Github className="w-5 h-5 absolute left-4" />
                   Continue with GitHub
