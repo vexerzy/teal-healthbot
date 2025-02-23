@@ -97,7 +97,7 @@ const Index = () => {
               <Brain className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-4xl font-bold tracking-tight">
-              Your AI Health Assistant
+              Hearth, your AI Health Assistant
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Experience the future of healthcare with our AI-powered medical assistant.
