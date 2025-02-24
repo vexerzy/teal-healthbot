@@ -2,7 +2,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openAIApiKey = "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";
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -36,6 +36,10 @@ serve(async (req) => {
       }),
     });
 
+    if (!responseData.ok) {
+      throw new Error('Failed to get AI response: ' + await responseData.text());
+    }
+
     const textResponse = await responseData.json();
     const aiMessage = textResponse.choices[0].message.content;
 
@@ -52,6 +56,10 @@ serve(async (req) => {
         input: aiMessage,
       }),
     });
+
+    if (!speechResponse.ok) {
+      throw new Error('Failed to generate speech: ' + await speechResponse.text());
+    }
 
     const audioBlob = await speechResponse.blob();
     const audioBase64 = await blobToBase64(audioBlob);
