@@ -44,12 +44,6 @@ const Index = () => {
     setShowChat(true);
   };
 
-  const simulateAIResponse = async (message: string) => {
-    const response = "Goody goody poody doody";
-    const utterance = new SpeechSynthesisUtterance(response);
-    window.speechSynthesis.speak(utterance);
-  };
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative">
       {showChat && (
@@ -87,7 +81,7 @@ const Index = () => {
           onSubmit={handleHealthSubmit}
         />
       ) : showChat ? (
-        <ChatInterface onSend={simulateAIResponse} />
+        <ChatInterface onSend={() => {}} />
       ) : (
         <AuthScreen
           onLogin={handleLogin}

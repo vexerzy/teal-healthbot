@@ -15,7 +15,9 @@ export const ChatInterface = ({ onSend }: ChatInterfaceProps) => {
   const [currentInput, setCurrentInput] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isAISpeaking, setIsAISpeaking] = useState(false);
+  const [messages, setMessages] = useState<{ sender: 'user' | 'ai', content: string }[]>([]);
   const recognitionRef = useRef<any>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     recognitionRef.current = initSpeechRecognition();
@@ -61,25 +63,70 @@ export const ChatInterface = ({ onSend }: ChatInterfaceProps) => {
     }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!currentInput.trim()) return;
     
     if (isListening) {
       toggleListening();
     }
-    onSend(currentInput);
+
+    const userMessage = currentInput;
+    setMessages(prev => [...prev, { sender: 'user', content: userMessage }]);
     setCurrentInput("");
+
+    try {
+      const response = await fetch('/functions/chat-with-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage }),
+      });
+
+      if (!response.ok) throw new Error('Failed to get AI response');
+
+      const data = await response.json();
+      setMessages(prev => [...prev, { sender: 'ai', content: data.message }]);
+
+      // Play audio response
+      if (data.audio) {
+        setIsAISpeaking(true);
+        const audio = new Audio(data.audio);
+        audioRef.current = audio;
+        
+        audio.onended = () => {
+          setIsAISpeaking(false);
+        };
+
+        await audio.play();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Failed to get AI response. Please try again.');
+    }
   };
 
   return (
     <div className="w-full max-w-4xl h-[80vh] animate-fadeIn">
       <Card className="p-8 glass-panel h-full flex flex-col relative">
-        <div className="flex-grow flex items-center justify-center mb-8">
+        <div className="flex-grow flex flex-col items-center mb-8 overflow-y-auto">
           <Flame 
-            className={`w-32 h-32 text-primary transition-all duration-300 ${
+            className={`w-32 h-32 text-primary transition-all duration-300 mb-8 ${
               isListening || isAISpeaking ? 'scale-110 animate-pulse' : ''
             }`} 
           />
+          <div className="w-full space-y-4">
+            {messages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`p-4 rounded-lg max-w-[80%] ${
+                  msg.sender === 'user'
+                    ? 'bg-primary/20 ml-auto'
+                    : 'bg-secondary/20 mr-auto'
+                }`}
+              >
+                {msg.content}
+              </div>
+            ))}
+          </div>
         </div>
         <div className="flex items-center space-x-2">
           <Input
@@ -87,6 +134,11 @@ export const ChatInterface = ({ onSend }: ChatInterfaceProps) => {
             className="glass-panel"
             value={currentInput}
             onChange={(e) => setCurrentInput(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSend();
+              }
+            }}
           />
           <Button
             variant="outline"
