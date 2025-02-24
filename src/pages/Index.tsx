@@ -45,7 +45,7 @@ const Index = () => {
   };
 
   const simulateAIResponse = async (message: string) => {
-    const response = "I understand. Based on your input, I'd recommend focusing on maintaining a regular sleep schedule and staying hydrated. Would you like more specific advice about any particular health concern?";
+    const response = "Goody goody poody doody";
     const utterance = new SpeechSynthesisUtterance(response);
     window.speechSynthesis.speak(utterance);
   };
