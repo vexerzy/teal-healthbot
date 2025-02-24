@@ -1,8 +1,7 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const openAIApiKey = "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";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,8 +15,12 @@ serve(async (req) => {
 
   try {
     const { message } = await req.json();
+    
+    if (!message) {
+      throw new Error("Message input is missing.");
+    }
 
-    // Get AI response
+    // 🔹 Get AI Response
     const responseData = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -25,7 +28,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           { 
             role: 'system', 
@@ -37,13 +40,13 @@ serve(async (req) => {
     });
 
     if (!responseData.ok) {
-      throw new Error('Failed to get AI response: ' + await responseData.text());
+      throw new Error(`Failed to get AI response: ${await responseData.text()}`);
     }
 
     const textResponse = await responseData.json();
     const aiMessage = textResponse.choices[0].message.content;
 
-    // Get voice response
+    // 🔹 Get AI Speech Response
     const speechResponse = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',
       headers: {
@@ -58,20 +61,20 @@ serve(async (req) => {
     });
 
     if (!speechResponse.ok) {
-      throw new Error('Failed to generate speech: ' + await speechResponse.text());
+      throw new Error(`Failed to generate speech: ${await speechResponse.text()}`);
     }
 
-    const audioBlob = await speechResponse.blob();
-    const audioBase64 = await blobToBase64(audioBlob);
+    const audioBuffer = await speechResponse.arrayBuffer();
+    const audioBase64 = arrayBufferToBase64(audioBuffer);
 
     return new Response(JSON.stringify({
       message: aiMessage,
-      audio: audioBase64,
+      audio: `data:audio/mp3;base64,${audioBase64}`,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Error in chat-with-ai function:', error);
+    console.error('Error:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -79,8 +82,12 @@ serve(async (req) => {
   }
 });
 
-async function blobToBase64(blob: Blob): Promise<string> {
-  const buffer = await blob.arrayBuffer();
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
-  return `data:audio/mp3;base64,${base64}`;
+// 🔹 Convert ArrayBuffer to Base64
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 }
