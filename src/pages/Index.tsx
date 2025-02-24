@@ -1,9 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Bot, Brain, Flame, Github, Heart, LogIn, Mail, Shield, Weight, Ruler, Bed, Mic, MicOff } from "lucide-react";
+import { Bot, Brain, Flame, Github, Heart, LogIn, Mail, Shield, Weight, Ruler, Bed, Mic, MicOff, Menu, Settings, User, Palette } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -12,6 +18,7 @@ const Index = () => {
   const [showChat, setShowChat] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isNewUser, setIsNewUser] = useState(false);
   const [healthInfo, setHealthInfo] = useState({
     age: "",
     weight: "",
@@ -21,7 +28,9 @@ const Index = () => {
   });
   const [isListening, setIsListening] = useState(false);
   const [currentInput, setCurrentInput] = useState("");
+  const [isAISpeaking, setIsAISpeaking] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const [theme, setTheme] = useState("teal");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -72,6 +81,12 @@ const Index = () => {
 
   const handleLogin = () => {
     setShowEmailForm(false);
+    setShowChat(true);
+  };
+
+  const handleSignUp = () => {
+    setIsNewUser(true);
+    setShowEmailForm(false);
     setShowHealthForm(true);
   };
 
@@ -80,16 +95,58 @@ const Index = () => {
     setShowChat(true);
   };
 
+  const speakText = async (text: string) => {
+    setIsAISpeaking(true);
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onend = () => setIsAISpeaking(false);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const simulateAIResponse = async () => {
+    const response = "I understand. Based on your input, I'd recommend focusing on maintaining a regular sleep schedule and staying hydrated. Would you like more specific advice about any particular health concern?";
+    setIsAISpeaking(true);
+    await speakText(response);
+  };
+
   const handleSend = () => {
+    if (!currentInput.trim()) return;
+    
     console.log("Sending message:", currentInput);
     setCurrentInput("");
     if (isListening) {
       toggleListening();
     }
+    simulateAIResponse();
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative">
+      {showChat && (
+        <div className="absolute top-4 left-4 z-50">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem className="flex items-center gap-2" onClick={() => setShowHealthForm(true)}>
+                <User className="h-4 w-4" />
+                Update Health Info
+              </DropdownMenuItem>
+              <DropdownMenuItem className="flex items-center gap-2" onClick={() => setTheme(theme === "teal" ? "purple" : "teal")}>
+                <Palette className="h-4 w-4" />
+                Toggle Theme
+              </DropdownMenuItem>
+              <DropdownMenuItem className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Settings
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+
       {showWelcome ? (
         <div className="max-w-4xl w-full space-y-8 animate-fadeIn">
           <div className="text-center space-y-4">
@@ -221,12 +278,13 @@ const Index = () => {
         </div>
       ) : showChat ? (
         <div className="w-full max-w-4xl h-[80vh] animate-fadeIn">
-          <Card className="p-8 glass-panel h-full flex flex-col">
-            <div className="flex items-center justify-center mb-8">
-              <Flame className="w-16 h-16 text-primary animate-pulse" />
-            </div>
-            <div className="flex-grow overflow-y-auto mb-4 p-4">
-              {/* Chat messages will go here */}
+          <Card className="p-8 glass-panel h-full flex flex-col relative">
+            <div className="flex-grow flex items-center justify-center mb-8">
+              <Flame 
+                className={`w-32 h-32 text-primary transition-all duration-300 ${
+                  isListening || isAISpeaking ? 'scale-110 animate-pulse' : ''
+                }`} 
+              />
             </div>
             <div className="flex items-center space-x-2">
               <Input
@@ -277,6 +335,9 @@ const Index = () => {
                 <Button className="w-full" onClick={handleLogin}>
                   Sign in with Email
                 </Button>
+                <Button className="w-full" onClick={handleSignUp}>
+                  Sign up with Email
+                </Button>
                 <div className="text-center">
                   <Button
                     variant="link"
@@ -325,17 +386,6 @@ const Index = () => {
                   <Mail className="w-5 h-5 absolute left-4" />
                   Continue with Email
                 </Button>
-
-                <div className="text-center text-sm text-muted-foreground">
-                  <p>Don't have an account?</p>
-                  <Button
-                    variant="link"
-                    className="text-primary"
-                    onClick={() => console.log("Sign up")}
-                  >
-                    Sign up
-                  </Button>
-                </div>
               </div>
             )}
           </Card>

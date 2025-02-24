@@ -28,6 +28,13 @@
     --ring: 172 66% 50%;
     --radius: 0.75rem;
   }
+
+  :root[data-theme="purple"] {
+    --primary: 267 66% 60%;
+    --primary-foreground: 215 20.2% 95.1%;
+    --accent: 267 66% 60%;
+    --ring: 267 66% 60%;
+  }
 }
 
 @layer base {
@@ -46,4 +53,19 @@
 
 .animate-in {
   animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.animate-flame {
+  animation: pulse 2s ease-in-out infinite;
 }
