@@ -2,10 +2,11 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Flame, Mic, MicOff } from "lucide-react";
+import { Mic, MicOff } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { initSpeechRecognition } from "@/utils/speechRecognition";
 import { toast } from "sonner";
+import { AudioVisualizer } from "../audio/AudioVisualizer";
 
 interface ChatInterfaceProps {
   onSend: (message: string) => void;
@@ -108,10 +109,9 @@ export const ChatInterface = ({ onSend }: ChatInterfaceProps) => {
     <div className="w-full max-w-4xl h-[80vh] animate-fadeIn">
       <Card className="p-8 glass-panel h-full flex flex-col relative">
         <div className="flex-grow flex flex-col items-center mb-8 overflow-y-auto">
-          <Flame 
-            className={`w-32 h-32 text-primary transition-all duration-300 mb-8 ${
-              isListening || isAISpeaking ? 'scale-110 animate-pulse' : ''
-            }`} 
+          <AudioVisualizer 
+            isAISpeaking={isAISpeaking}
+            audioRef={audioRef}
           />
           <div className="w-full space-y-4">
             {messages.map((msg, idx) => (
