@@ -1,7 +1,8 @@
 
-import { Brain, Bot, Shield, LogIn } from "lucide-react";
+import { Brain, Bot, Shield, LogIn, Waveform } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 interface WelcomeScreenProps {
   onGetStarted: () => void;
@@ -49,13 +50,24 @@ export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
         </Card>
       </div>
 
-      <div className="flex justify-center mt-12">
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-12">
         <Button
           size="lg"
           className="bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={onGetStarted}
         >
           Get Started
+        </Button>
+        <Button
+          variant="outline"
+          size="lg"
+          className="flex items-center gap-2"
+          asChild
+        >
+          <Link to="/audio-demo">
+            <Waveform className="w-4 h-4" />
+            Try Audio Demo
+          </Link>
         </Button>
       </div>
     </div>
