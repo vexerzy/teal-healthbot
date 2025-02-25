@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { WelcomeScreen } from "@/components/welcome/WelcomeScreen";
 import { AuthScreen } from "@/components/auth/AuthScreen";
@@ -59,7 +60,7 @@ const Index = () => {
                 <Menu className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent align="start" sideOffset={8}>
               <DropdownMenuItem className="flex items-center gap-2" onClick={() => setShowHealthForm(true)}>
                 <User className="h-4 w-4" />
                 Update Health Info

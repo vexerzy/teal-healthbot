@@ -11,14 +11,31 @@ interface AuthScreenProps {
 }
 
 export const AuthScreen = ({ onLogin, onSignUp }: AuthScreenProps) => {
-  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [isLoginMode, setIsLoginMode] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   return (
     <div className="w-full max-w-md animate-slideIn">
       <Card className="p-6 glass-panel">
-        {showEmailForm ? (
+        <div className="space-y-4">
+          <div className="flex justify-center space-x-4 mb-6">
+            <Button
+              variant={isLoginMode ? "default" : "outline"}
+              onClick={() => setIsLoginMode(true)}
+              className="w-32"
+            >
+              Login
+            </Button>
+            <Button
+              variant={!isLoginMode ? "default" : "outline"}
+              onClick={() => setIsLoginMode(false)}
+              className="w-32"
+            >
+              Sign Up
+            </Button>
+          </div>
+
           <div className="space-y-4">
             <Input
               type="email"
@@ -32,29 +49,28 @@ export const AuthScreen = ({ onLogin, onSignUp }: AuthScreenProps) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <Button className="w-full" onClick={onLogin}>
-              Sign in with Email
+            <Button 
+              className="w-full" 
+              onClick={isLoginMode ? onLogin : onSignUp}
+            >
+              {isLoginMode ? "Sign In" : "Create Account"}
             </Button>
-            <Button className="w-full" onClick={onSignUp}>
-              Sign up with Email
-            </Button>
-            <div className="text-center">
-              <Button
-                variant="link"
-                className="text-sm text-muted-foreground"
-                onClick={() => setShowEmailForm(false)}
-              >
-                Back to all options
-              </Button>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-muted-foreground/20"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold mb-6 text-center">Sign In</h2>
+
             <Button
               variant="outline"
               className="w-full relative hover:bg-secondary"
-              onClick={onLogin}
+              onClick={isLoginMode ? onLogin : onSignUp}
             >
               <svg
                 className="w-5 h-5 absolute left-4"
@@ -72,7 +88,7 @@ export const AuthScreen = ({ onLogin, onSignUp }: AuthScreenProps) => {
             <Button
               variant="outline"
               className="w-full relative hover:bg-secondary"
-              onClick={onLogin}
+              onClick={isLoginMode ? onLogin : onSignUp}
             >
               <Github className="w-5 h-5 absolute left-4" />
               Continue with GitHub
@@ -81,13 +97,13 @@ export const AuthScreen = ({ onLogin, onSignUp }: AuthScreenProps) => {
             <Button
               variant="outline"
               className="w-full relative hover:bg-secondary"
-              onClick={() => setShowEmailForm(true)}
+              onClick={() => {}}
             >
               <Mail className="w-5 h-5 absolute left-4" />
               Continue with Email
             </Button>
           </div>
-        )}
+        </div>
       </Card>
     </div>
   );
