@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { WelcomeScreen } from "@/components/welcome/WelcomeScreen";
 import { AuthScreen } from "@/components/auth/AuthScreen";
@@ -44,6 +43,12 @@ const Index = () => {
     setShowChat(true);
   };
 
+  const toggleTheme = () => {
+    const newTheme = theme === "teal" ? "purple" : "teal";
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative">
       {showChat && (
@@ -59,7 +64,7 @@ const Index = () => {
                 <User className="h-4 w-4" />
                 Update Health Info
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-2" onClick={() => setTheme(theme === "teal" ? "purple" : "teal")}>
+              <DropdownMenuItem className="flex items-center gap-2" onClick={toggleTheme}>
                 <Palette className="h-4 w-4" />
                 Toggle Theme
               </DropdownMenuItem>
@@ -72,21 +77,30 @@ const Index = () => {
         </div>
       )}
 
-      {showWelcome ? (
-        <WelcomeScreen onGetStarted={() => setShowWelcome(false)} />
-      ) : showHealthForm ? (
+      {showWelcome && (
+        <WelcomeScreen onGetStarted={() => {
+          setShowWelcome(false);
+          setShowEmailForm(true);
+        }} />
+      )}
+      
+      {!showWelcome && showEmailForm && (
+        <AuthScreen
+          onLogin={handleLogin}
+          onSignUp={handleSignUp}
+        />
+      )}
+      
+      {showHealthForm && (
         <HealthForm
           healthInfo={healthInfo}
           onHealthInfoChange={setHealthInfo}
           onSubmit={handleHealthSubmit}
         />
-      ) : showChat ? (
+      )}
+      
+      {showChat && (
         <ChatInterface onSend={() => {}} />
-      ) : (
-        <AuthScreen
-          onLogin={handleLogin}
-          onSignUp={handleSignUp}
-        />
       )}
     </div>
   );
