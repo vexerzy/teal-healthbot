@@ -10,33 +10,75 @@ const AudioDemo = () => {
   const [isLoading, setIsLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Pre-load audio file to check if it's valid
+  useEffect(() => {
+    const testAudio = new Audio("/demo-tts.mp3");
+    testAudio.addEventListener('canplaythrough', () => {
+      console.log("Audio file is valid and can be played");
+    });
+    
+    testAudio.addEventListener('error', (e) => {
+      console.error("Error pre-loading audio file:", testAudio.error);
+      toast.error("There was an issue with the audio file. Please check console for details.");
+    });
+    
+    return () => {
+      testAudio.pause();
+      testAudio.src = "";
+    };
+  }, []);
+
   const playDemoAudio = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
 
+    setIsLoading(true);
     console.log("Starting to play demo audio");
-    const audio = new Audio("/demo-tts.mp3");
-    audioRef.current = audio;
-    setIsAISpeaking(true);
-    
-    audio.onended = () => {
-      console.log("Audio playback ended");
-      setIsAISpeaking(false);
-    };
 
-    audio.onerror = (error) => {
-      console.error("Audio error:", error);
-      toast.error("Error playing audio: Could not load the audio file");
-      setIsAISpeaking(false);
-    };
+    try {
+      const audio = new Audio("/demo-tts.mp3");
+      audioRef.current = audio;
+      
+      // Debug info about the audio file
+      console.log("Audio element created:", audio);
+      console.log("Audio source:", audio.src);
+      
+      audio.oncanplaythrough = () => {
+        console.log("Audio can play through, ready to start playback");
+        setIsLoading(false);
+        setIsAISpeaking(true);
+        
+        audio.play().catch(error => {
+          console.error("Error during audio play():", error);
+          toast.error(`Cannot play audio: ${error.message}`);
+          setIsAISpeaking(false);
+          setIsLoading(false);
+        });
+      };
+      
+      audio.onended = () => {
+        console.log("Audio playback ended");
+        setIsAISpeaking(false);
+      };
 
-    audio.play().catch(error => {
-      console.error("Error playing audio:", error);
-      toast.error(`Error playing audio: ${error.message}`);
+      audio.onerror = () => {
+        const errorMessage = audio.error 
+          ? `Error: ${audio.error.code} - ${audio.error.message || 'Unknown error'}`
+          : 'Unknown audio error';
+        
+        console.error("Audio error:", errorMessage, audio.error);
+        toast.error(`Error playing audio: ${errorMessage}`);
+        setIsAISpeaking(false);
+        setIsLoading(false);
+      };
+    } catch (error) {
+      console.error("Exception creating audio element:", error);
+      toast.error(`Error creating audio player: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsAISpeaking(false);
-    });
+      setIsLoading(false);
+    }
   };
 
   // Add a cleanup function
@@ -73,7 +115,7 @@ const AudioDemo = () => {
           </Button>
           
           <div className="text-center text-sm text-muted-foreground mt-4">
-            <p>Status: {isAISpeaking ? "Playing audio" : "Ready"}</p>
+            <p>Status: {isAISpeaking ? "Playing audio" : isLoading ? "Loading audio..." : "Ready"}</p>
             <p className="mt-2">
               If you don't hear anything, please check your speakers and make sure your browser allows audio playback.
             </p>
