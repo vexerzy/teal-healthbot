@@ -8,18 +8,28 @@ import { toast } from "sonner";
 const AudioDemo = () => {
   const [isAISpeaking, setIsAISpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [audioError, setAudioError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrl = "/demo-tts.mp3";
 
   // Pre-load audio file to check if it's valid
   useEffect(() => {
-    const testAudio = new Audio("/demo-tts.mp3");
+    console.log("Testing audio file at:", audioUrl);
+    const testAudio = new Audio(audioUrl);
+    
     testAudio.addEventListener('canplaythrough', () => {
-      console.log("Audio file is valid and can be played");
+      console.log("✅ Audio file is valid and can be played");
+      setAudioError(null);
     });
     
     testAudio.addEventListener('error', (e) => {
-      console.error("Error pre-loading audio file:", testAudio.error);
-      toast.error("There was an issue with the audio file. Please check console for details.");
+      const errorDetails = testAudio.error 
+        ? `Code: ${testAudio.error.code}, Message: ${testAudio.error.message || 'Unknown'}`
+        : 'Unknown error';
+      
+      console.error("❌ Error pre-loading audio file:", errorDetails);
+      setAudioError(`Audio file error: ${errorDetails}`);
+      toast.error("There was an issue with the audio file");
     });
     
     return () => {
@@ -35,10 +45,11 @@ const AudioDemo = () => {
     }
 
     setIsLoading(true);
-    console.log("Starting to play demo audio");
+    setAudioError(null);
+    console.log("Starting to play demo audio from:", audioUrl);
 
     try {
-      const audio = new Audio("/demo-tts.mp3");
+      const audio = new Audio(audioUrl);
       audioRef.current = audio;
       
       // Debug info about the audio file
@@ -55,6 +66,7 @@ const AudioDemo = () => {
           toast.error(`Cannot play audio: ${error.message}`);
           setIsAISpeaking(false);
           setIsLoading(false);
+          setAudioError(`Play error: ${error.message}`);
         });
       };
       
@@ -72,12 +84,14 @@ const AudioDemo = () => {
         toast.error(`Error playing audio: ${errorMessage}`);
         setIsAISpeaking(false);
         setIsLoading(false);
+        setAudioError(errorMessage);
       };
     } catch (error) {
       console.error("Exception creating audio element:", error);
       toast.error(`Error creating audio player: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsAISpeaking(false);
       setIsLoading(false);
+      setAudioError(`Exception: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -115,7 +129,10 @@ const AudioDemo = () => {
           </Button>
           
           <div className="text-center text-sm text-muted-foreground mt-4">
-            <p>Status: {isAISpeaking ? "Playing audio" : isLoading ? "Loading audio..." : "Ready"}</p>
+            <p>Status: {isAISpeaking ? "Playing audio" : isLoading ? "Loading audio..." : audioError ? "Error" : "Ready"}</p>
+            {audioError && (
+              <p className="text-red-500 mt-2">{audioError}</p>
+            )}
             <p className="mt-2">
               If you don't hear anything, please check your speakers and make sure your browser allows audio playback.
             </p>
