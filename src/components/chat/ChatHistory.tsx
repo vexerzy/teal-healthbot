@@ -47,7 +47,10 @@ export const ChatHistory = ({ userId, onSelectConversation }: ChatHistoryProps) 
     }).filter(Boolean);
     
     // Sort by last updated
-    chats.sort((a, b) => b.lastUpdated - a.lastUpdated);
+    chats.sort((a, b) => {
+      return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
+    });
+    
     setConversations(chats);
   };
 
@@ -61,51 +64,50 @@ export const ChatHistory = ({ userId, onSelectConversation }: ChatHistoryProps) 
   };
 
   return (
-    <Card className="w-full max-w-4xl animate-fadeIn">
-      <CardHeader>
-        <CardTitle className="text-xl">Your Conversations</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {conversations.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No conversations yet. Start chatting with the health assistant!
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {conversations.map(conversation => (
-              <div 
-                key={conversation.id}
-                onClick={() => onSelectConversation(conversation)}
-                className="p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer transition-colors"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-primary" />
-                    <span className="font-medium">
-                      {new Date(conversation.lastUpdated).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-6 w-6"
-                    onClick={(e) => deleteConversation(conversation.id, e)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground">{conversation.preview}</p>
-                <div className="flex justify-between items-center mt-2">
-                  <span className="text-xs">{conversation.messageCount} messages</span>
-                  <span className="text-xs text-muted-foreground">
-                    Last message: {new Date(conversation.lastUpdated).toLocaleTimeString()}
+    <div className="w-full max-w-4xl animate-fadeIn space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Your Conversations</h2>
+      </div>
+      
+      {conversations.length === 0 ? (
+        <div className="text-center py-8 text-muted-foreground">
+          No conversations yet. Start chatting!
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {conversations.map(conversation => (
+            <div 
+              key={conversation.id}
+              onClick={() => onSelectConversation(conversation)}
+              className="p-4 rounded-lg border border-border hover:bg-accent/20 cursor-pointer transition-colors"
+            >
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4 text-primary" />
+                  <span className="font-medium">
+                    {new Date(conversation.lastUpdated).toLocaleDateString()}
                   </span>
                 </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={(e) => deleteConversation(conversation.id, e)}
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
               </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              <p className="text-sm text-muted-foreground">{conversation.preview}</p>
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-xs">{conversation.messageCount} messages</span>
+                <span className="text-xs text-muted-foreground">
+                  Last message: {new Date(conversation.lastUpdated).toLocaleTimeString()}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
