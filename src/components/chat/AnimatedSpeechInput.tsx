@@ -2,7 +2,7 @@
 import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Mic, Send, X } from "lucide-react";
+import { Mic, Send, X, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AnimatedSpeechInputProps {
@@ -45,7 +45,7 @@ export const AnimatedSpeechInput = ({
         {isExpanded ? (
           <motion.div
             initial={{ width: "60px", height: "60px", borderRadius: "50%" }}
-            animate={{ width: "100%", maxWidth: "600px", height: "60px", borderRadius: "30px" }}
+            animate={{ width: "90vw", maxWidth: "600px", height: "60px", borderRadius: "30px" }}
             exit={{ width: "60px", height: "60px", borderRadius: "50%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="bg-primary flex items-center gap-2 shadow-lg overflow-hidden"
@@ -55,13 +55,9 @@ export const AnimatedSpeechInput = ({
               variant="ghost"
               size="icon"
               className="h-12 w-12 ml-2 bg-transparent text-primary-foreground hover:bg-primary-foreground/10"
-              onClick={isListening ? toggleListening : handleToggleExpand}
+              onClick={handleToggleExpand}
             >
-              {isListening ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <X className="h-6 w-6" />
-              )}
+              <X className="h-6 w-6" />
             </Button>
             
             <Input
@@ -104,12 +100,10 @@ export const AnimatedSpeechInput = ({
             exit={{ scale: 0.8, opacity: 0 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className={`h-16 w-16 rounded-full bg-primary flex items-center justify-center shadow-lg ${
-              isListening ? "animate-pulse" : ""
-            }`}
-            onClick={isExpanded ? handleToggleExpand : isListening ? toggleListening : handleToggleExpand}
+            className="h-16 w-16 rounded-full bg-primary flex items-center justify-center shadow-lg"
+            onClick={handleToggleExpand}
           >
-            <Mic className="h-8 w-8 text-primary-foreground" />
+            <MessageCircle className="h-8 w-8 text-primary-foreground" />
           </motion.button>
         )}
       </AnimatePresence>
