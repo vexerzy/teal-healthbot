@@ -1,11 +1,10 @@
-
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Mic, MicOff, Save } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { initSpeechRecognition } from "@/utils/speechRecognition";
 import { toast } from "sonner";
 import { AudioVisualizer } from "../audio/AudioVisualizer";
+import { AnimatedSpeechInput } from "./AnimatedSpeechInput";
 
 interface ChatInterfaceProps {
   onSend: (message: string) => void;
@@ -104,14 +103,14 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
     }
   };
 
-  const handleSend = async () => {
-    if (!currentInput.trim() || isProcessing) return;
+  const handleSend = async (textToSend = currentInput) => {
+    if (!textToSend.trim() || isProcessing) return;
     
     if (isListening) {
       toggleListening();
     }
 
-    const userMessage = currentInput;
+    const userMessage = textToSend;
     const timestamp = new Date().toISOString();
     
     setMessages(prev => [...prev, { sender: 'user', content: userMessage, timestamp }]);
@@ -209,40 +208,14 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
           <div ref={messagesEndRef} />
         </div>
       </div>
-      <div className="flex items-center space-x-2">
-        <Input
-          placeholder="Type or speak your message..."
-          className="border border-border/50 bg-background/50"
-          value={currentInput}
-          onChange={(e) => setCurrentInput(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === 'Enter') {
-              handleSend();
-            }
-          }}
-          disabled={isProcessing}
-        />
-        <Button
-          variant="outline"
-          size="icon"
-          className={`${isListening ? 'bg-primary text-primary-foreground' : ''} transition-colors`}
-          onClick={toggleListening}
-          disabled={isProcessing}
-        >
-          {isListening ? (
-            <MicOff className="h-4 w-4 animate-pulse" />
-          ) : (
-            <Mic className="h-4 w-4" />
-          )}
-        </Button>
-        <Button 
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
-          onClick={handleSend}
-          disabled={!currentInput.trim() || isProcessing}
-        >
-          {isProcessing ? 'Processing...' : 'Send'}
-        </Button>
-      </div>
+
+      {/* Animated Speech Input */}
+      <AnimatedSpeechInput
+        onSend={handleSend}
+        isListening={isListening}
+        toggleListening={toggleListening}
+        isProcessing={isProcessing}
+      />
     </div>
   );
 };
