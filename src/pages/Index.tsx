@@ -1,9 +1,9 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { WelcomeScreen } from "@/components/welcome/WelcomeScreen";
 import { AuthScreen } from "@/components/auth/AuthScreen";
 import { HealthForm } from "@/components/health/HealthForm";
-import { ChatInterface } from "@/components/chat/ChatInterface";
+import { useUser } from "@/context/UserContext";
 import { Menu, User, Palette, Settings } from "lucide-react";
 import {
   DropdownMenu,
@@ -12,12 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const { user, isLoading, login, signup } = useUser();
   const [showWelcome, setShowWelcome] = useState(true);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [showHealthForm, setShowHealthForm] = useState(false);
-  const [showChat, setShowChat] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const [healthInfo, setHealthInfo] = useState({
     age: "",
@@ -27,21 +28,55 @@ const Index = () => {
     conditions: ""
   });
   const [theme, setTheme] = useState("teal");
+  const navigate = useNavigate();
 
-  const handleLogin = () => {
-    setShowEmailForm(false);
-    setShowChat(true);
+  // Check if user is already logged in
+  useEffect(() => {
+    if (user && !isLoading) {
+      // Skip welcome and auth screens if already logged in
+      setShowWelcome(false);
+      setShowEmailForm(false);
+      
+      // Check if health info exists
+      const savedHealthInfo = localStorage.getItem(`healthInfo-${user.id}`);
+      if (savedHealthInfo) {
+        setHealthInfo(JSON.parse(savedHealthInfo));
+        navigate('/chat');
+      } else {
+        setShowHealthForm(true);
+      }
+    }
+  }, [user, isLoading, navigate]);
+
+  const handleLogin = async (email: string, password: string) => {
+    const success = await login(email, password);
+    if (success) {
+      setShowEmailForm(false);
+      const savedHealthInfo = localStorage.getItem(`healthInfo-${user?.id}`);
+      if (savedHealthInfo) {
+        navigate('/chat');
+      } else {
+        setShowHealthForm(true);
+      }
+    }
   };
 
-  const handleSignUp = () => {
-    setIsNewUser(true);
-    setShowEmailForm(false);
-    setShowHealthForm(true);
+  const handleSignUp = async (name: string, email: string, password: string) => {
+    const success = await signup(name, email, password);
+    if (success) {
+      setIsNewUser(true);
+      setShowEmailForm(false);
+      setShowHealthForm(true);
+    }
   };
 
   const handleHealthSubmit = () => {
+    if (user) {
+      // Save health info
+      localStorage.setItem(`healthInfo-${user.id}`, JSON.stringify(healthInfo));
+    }
     setShowHealthForm(false);
-    setShowChat(true);
+    navigate('/chat');
   };
 
   const toggleTheme = () => {
@@ -50,9 +85,22 @@ const Index = () => {
     document.documentElement.setAttribute('data-theme', newTheme);
   };
 
+  // Show loading indicator while checking auth state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <div className="flex space-x-2">
+          <div className="h-4 w-4 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+          <div className="h-4 w-4 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+          <div className="h-4 w-4 bg-primary rounded-full animate-bounce"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative">
-      {showChat && (
+      {!showWelcome && !showEmailForm && !showHealthForm && (
         <div className="absolute top-4 left-4 z-50">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -98,10 +146,6 @@ const Index = () => {
           onHealthInfoChange={setHealthInfo}
           onSubmit={handleHealthSubmit}
         />
-      )}
-      
-      {showChat && (
-        <ChatInterface onSend={() => {}} />
       )}
     </div>
   );

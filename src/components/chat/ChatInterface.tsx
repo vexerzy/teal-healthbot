@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, Save } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { initSpeechRecognition } from "@/utils/speechRecognition";
 import { toast } from "sonner";
@@ -10,16 +10,18 @@ import { AudioVisualizer } from "../audio/AudioVisualizer";
 
 interface ChatInterfaceProps {
   onSend: (message: string) => void;
+  userId?: string | null;
 }
 
-export const ChatInterface = ({ onSend }: ChatInterfaceProps) => {
+export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
   const [currentInput, setCurrentInput] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isAISpeaking, setIsAISpeaking] = useState(false);
-  const [messages, setMessages] = useState<{ sender: 'user' | 'ai', content: string }[]>([]);
+  const [messages, setMessages] = useState<{ sender: 'user' | 'ai', content: string, timestamp: string }[]>([]);
   const recognitionRef = useRef<any>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Demo responses for testing
   const demoResponses = [
@@ -30,6 +32,20 @@ export const ChatInterface = ({ onSend }: ChatInterfaceProps) => {
   ];
 
   useEffect(() => {
+    // Load chat history from localStorage if userId exists
+    if (userId) {
+      const savedMessages = localStorage.getItem(`chatHistory-${userId}`);
+      if (savedMessages) {
+        setMessages(JSON.parse(savedMessages));
+      }
+    } else {
+      // Load temp chat history if no userId
+      const tempMessages = localStorage.getItem('tempChatHistory');
+      if (tempMessages) {
+        setMessages(JSON.parse(tempMessages));
+      }
+    }
+
     recognitionRef.current = initSpeechRecognition();
     if (recognitionRef.current) {
       recognitionRef.current.continuous = true;
@@ -55,7 +71,23 @@ export const ChatInterface = ({ onSend }: ChatInterfaceProps) => {
         recognitionRef.current.stop();
       }
     };
-  }, []);
+  }, [userId]);
+
+  // Save messages to localStorage whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      if (userId) {
+        localStorage.setItem(`chatHistory-${userId}`, JSON.stringify(messages));
+      } else {
+        localStorage.setItem('tempChatHistory', JSON.stringify(messages));
+      }
+    }
+  }, [messages, userId]);
+
+  // Auto scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const toggleListening = () => {
     if (!recognitionRef.current) {
@@ -81,7 +113,9 @@ export const ChatInterface = ({ onSend }: ChatInterfaceProps) => {
     }
 
     const userMessage = currentInput;
-    setMessages(prev => [...prev, { sender: 'user', content: userMessage }]);
+    const timestamp = new Date().toISOString();
+    
+    setMessages(prev => [...prev, { sender: 'user', content: userMessage, timestamp }]);
     setCurrentInput("");
     setIsProcessing(true);
 
@@ -94,7 +128,7 @@ export const ChatInterface = ({ onSend }: ChatInterfaceProps) => {
       const randomIndex = Math.floor(Math.random() * demoResponses.length);
       const aiResponse = demoResponses[randomIndex];
       
-      setMessages(prev => [...prev, { sender: 'ai', content: aiResponse }]);
+      setMessages(prev => [...prev, { sender: 'ai', content: aiResponse, timestamp: new Date().toISOString() }]);
       
       // Optional: Simulate text-to-speech by showing the audio visualizer
       // Comment this section out if you don't want to test audio features yet
@@ -111,9 +145,32 @@ export const ChatInterface = ({ onSend }: ChatInterfaceProps) => {
     }
   };
 
+  const clearChat = () => {
+    if (window.confirm("Are you sure you want to clear the chat history?")) {
+      setMessages([]);
+      if (userId) {
+        localStorage.removeItem(`chatHistory-${userId}`);
+      } else {
+        localStorage.removeItem('tempChatHistory');
+      }
+      toast.success("Chat history cleared");
+    }
+  };
+
   return (
     <div className="w-full max-w-4xl h-[80vh] animate-fadeIn">
       <Card className="p-8 glass-panel h-full flex flex-col relative">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Health Assistant</h2>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={clearChat}
+            className="text-xs"
+          >
+            Clear Chat
+          </Button>
+        </div>
         <div className="flex-grow flex flex-col items-center mb-8 overflow-y-auto">
           <AudioVisualizer 
             isAISpeaking={isAISpeaking}
@@ -134,7 +191,12 @@ export const ChatInterface = ({ onSend }: ChatInterfaceProps) => {
                     : 'bg-secondary/20 mr-auto'
                 }`}
               >
-                {msg.content}
+                <div className="flex flex-col">
+                  <span>{msg.content}</span>
+                  <span className="text-xs text-muted-foreground mt-2">
+                    {new Date(msg.timestamp).toLocaleTimeString()} - {new Date(msg.timestamp).toLocaleDateString()}
+                  </span>
+                </div>
               </div>
             ))}
             {isProcessing && (
@@ -146,6 +208,7 @@ export const ChatInterface = ({ onSend }: ChatInterfaceProps) => {
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </div>
         <div className="flex items-center space-x-2">
