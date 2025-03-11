@@ -44,11 +44,17 @@ export const AnimatedSpeechInput = ({
       <AnimatePresence>
         {isExpanded ? (
           <motion.div
-            initial={{ width: "60px", height: "60px", borderRadius: "50%" }}
-            animate={{ width: "90vw", maxWidth: "600px", height: "60px", borderRadius: "30px" }}
-            exit={{ width: "60px", height: "60px", borderRadius: "50%" }}
+            initial={{ width: "60px", height: "60px", borderRadius: "50%", right: 0 }}
+            animate={{ 
+              width: "100vw", 
+              height: "60px", 
+              borderRadius: "30px",
+              right: "0px",
+              x: "4rem" // Offset to account for the right-8 positioning
+            }}
+            exit={{ width: "60px", height: "60px", borderRadius: "50%", right: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="bg-primary flex items-center gap-2 shadow-lg overflow-hidden"
+            className="bg-primary flex items-center gap-2 shadow-lg overflow-hidden absolute right-0 bottom-0"
             style={{ originX: 1, originY: 0.5 }}
           >
             <Button

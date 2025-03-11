@@ -97,11 +97,18 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
     if (isListening) {
       recognitionRef.current.stop();
       setIsListening(false);
-      toast.success("Listening stopped");
+      
+      // If we have transcribed text, send it
+      if (currentInput.trim()) {
+        handleSend(currentInput);
+      } else {
+        toast.success("Listening stopped");
+      }
     } else {
       recognitionRef.current.start();
       setIsListening(true);
       toast.success("Listening...");
+      setCurrentInput("");
       setIsAISpeaking(false);
     }
   };
@@ -210,7 +217,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Floating Mic Button at the center bottom (optional for direct voice interaction) */}
+      {/* Only show direct mic button when not listening or speaking */}
       {!isListening && !isAISpeaking && (
         <Button
           onClick={toggleListening}
