@@ -8,6 +8,7 @@ import { UserProvider } from "@/context/UserContext";
 import Index from "./pages/Index";
 import Chat from "./pages/Chat";
 import AudioDemo from "./pages/AudioDemo";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/audio-demo" element={<AudioDemo />} />
+            <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

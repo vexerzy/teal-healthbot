@@ -1,5 +1,5 @@
 
-import { Brain, Bot, Shield, LogIn, AudioWaveform } from "lucide-react";
+import { Brain, Bot, Shield, LogIn, AudioWaveform, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -67,6 +67,17 @@ export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
           <Link to="/audio-demo">
             <AudioWaveform className="w-4 h-4" />
             Try Audio Demo
+          </Link>
+        </Button>
+        <Button
+          variant="ghost"
+          size="lg"
+          className="flex items-center gap-2"
+          asChild
+        >
+          <Link to="/about">
+            <Info className="w-4 h-4" />
+            About Hearth
           </Link>
         </Button>
       </div>

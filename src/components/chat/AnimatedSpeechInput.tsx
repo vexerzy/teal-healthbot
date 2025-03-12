@@ -2,7 +2,7 @@
 import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Mic, Send, X, MessageCircle } from "lucide-react";
+import { Mic, Send, X, MessageCircle, MicOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AnimatedSpeechInputProps {
@@ -46,15 +46,15 @@ export const AnimatedSpeechInput = ({
           <motion.div
             initial={{ width: "60px", height: "60px", borderRadius: "50%", right: 0 }}
             animate={{ 
-              width: "100vw", 
+              width: "calc(100vw - 2rem)", 
               height: "60px", 
               borderRadius: "30px",
-              right: "0px",
-              x: "4rem" // Offset to account for the right-8 positioning
+              x: "1rem", // Offset from right edge
+              right: "0"
             }}
             exit={{ width: "60px", height: "60px", borderRadius: "50%", right: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="bg-primary flex items-center gap-2 shadow-lg overflow-hidden absolute right-0 bottom-0"
+            className="bg-primary flex items-center gap-2 shadow-lg overflow-hidden absolute bottom-0"
             style={{ originX: 1, originY: 0.5 }}
           >
             <Button
@@ -86,7 +86,11 @@ export const AnimatedSpeechInput = ({
               onClick={toggleListening}
               disabled={isProcessing}
             >
-              <Mic className={`h-6 w-6 ${isListening ? "animate-pulse" : ""}`} />
+              {isListening ? (
+                <MicOff className="h-6 w-6 animate-pulse text-destructive" />
+              ) : (
+                <Mic className="h-6 w-6" />
+              )}
             </Button>
             
             <Button
@@ -106,7 +110,7 @@ export const AnimatedSpeechInput = ({
             exit={{ scale: 0.8, opacity: 0 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="h-16 w-16 rounded-full bg-primary flex items-center justify-center shadow-lg"
+            className="h-16 w-16 rounded-full bg-primary flex items-center justify-center shadow-lg bg-gradient-to-r from-cyan-500 to-blue-500"
             onClick={handleToggleExpand}
           >
             <MessageCircle className="h-8 w-8 text-primary-foreground" />
