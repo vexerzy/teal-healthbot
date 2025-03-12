@@ -54,13 +54,13 @@ export const AnimatedSpeechInput = ({
             }}
             exit={{ width: "60px", height: "60px", borderRadius: "50%", right: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="bg-primary flex items-center gap-2 shadow-lg overflow-hidden absolute bottom-0"
+            className="flex items-center gap-2 shadow-lg overflow-hidden absolute bottom-0 bg-gradient-to-r from-cyan-500 to-blue-500"
             style={{ originX: 1, originY: 0.5 }}
           >
             <Button
               variant="ghost"
               size="icon"
-              className="h-12 w-12 ml-2 bg-transparent text-primary-foreground hover:bg-primary-foreground/10"
+              className="h-12 w-12 ml-2 bg-transparent text-white hover:bg-white/10"
               onClick={handleToggleExpand}
             >
               <X className="h-6 w-6" />
@@ -69,7 +69,7 @@ export const AnimatedSpeechInput = ({
             <Input
               ref={inputRef}
               placeholder="Type your message..."
-              className="flex-grow border-none bg-transparent focus-visible:ring-0 text-primary-foreground placeholder:text-primary-foreground/70"
+              className="flex-grow border-none bg-transparent focus-visible:ring-0 text-white placeholder:text-white/70"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyPress={(e) => {
@@ -82,12 +82,12 @@ export const AnimatedSpeechInput = ({
             <Button
               variant="ghost"
               size="icon"
-              className={`h-12 w-12 ${isListening ? "bg-primary-foreground/20" : ""} text-primary-foreground hover:bg-primary-foreground/20`}
+              className={`h-12 w-12 ${isListening ? "bg-white/20" : ""} text-white hover:bg-white/20`}
               onClick={toggleListening}
               disabled={isProcessing}
             >
               {isListening ? (
-                <MicOff className="h-6 w-6 animate-pulse text-destructive" />
+                <MicOff className="h-6 w-6 animate-pulse text-red-400" />
               ) : (
                 <Mic className="h-6 w-6" />
               )}
@@ -96,7 +96,7 @@ export const AnimatedSpeechInput = ({
             <Button
               variant="ghost"
               size="icon"
-              className="h-12 w-12 mr-2 text-primary-foreground hover:bg-primary-foreground/20"
+              className="h-12 w-12 mr-2 text-white hover:bg-white/20"
               onClick={handleSend}
               disabled={!inputText.trim() || isProcessing}
             >
@@ -110,10 +110,10 @@ export const AnimatedSpeechInput = ({
             exit={{ scale: 0.8, opacity: 0 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="h-16 w-16 rounded-full bg-primary flex items-center justify-center shadow-lg bg-gradient-to-r from-cyan-500 to-blue-500"
+            className="h-16 w-16 rounded-full flex items-center justify-center shadow-lg bg-gradient-to-r from-cyan-500 to-blue-500"
             onClick={handleToggleExpand}
           >
-            <MessageCircle className="h-8 w-8 text-primary-foreground" />
+            <MessageCircle className="h-8 w-8 text-white" />
           </motion.button>
         )}
       </AnimatePresence>
