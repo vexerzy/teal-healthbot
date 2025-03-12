@@ -40,21 +40,21 @@ export const AnimatedSpeechInput = ({
   };
 
   return (
-    <div className="fixed bottom-8 left-0 right-0 flex justify-center z-50">
+    <div className="fixed bottom-8 right-8 z-50">
       <AnimatePresence>
         {isExpanded ? (
           <motion.div
-            initial={{ width: "80px", height: "80px", borderRadius: "50%" }}
+            initial={{ width: "80px", height: "80px", borderRadius: "50%", right: 0 }}
             animate={{ 
               width: "calc(100vw - 2rem)", 
               height: "60px", 
               borderRadius: "30px",
-              x: 0
+              x: "calc(-100vw + 80px + 2rem)"
             }}
-            exit={{ width: "80px", height: "80px", borderRadius: "50%" }}
+            exit={{ width: "80px", height: "80px", borderRadius: "50%", right: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="flex items-center gap-2 shadow-lg overflow-hidden absolute bottom-0 bg-gradient-to-r from-cyan-500 to-blue-500"
-            style={{ maxWidth: "1200px", margin: "0 auto" }}
+            style={{ maxWidth: "1200px", originX: 1, originY: 0.5 }}
           >
             <Button
               variant="ghost"

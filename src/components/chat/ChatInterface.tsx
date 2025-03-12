@@ -21,6 +21,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isMicAvailable, setIsMicAvailable] = useState(true);
 
   // Demo responses for testing
   const demoResponses = [
@@ -62,7 +63,12 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
         console.error(event.error);
         setIsListening(false);
         toast.error("Error with speech recognition. Please try again.");
+        if (event.error === 'not-allowed' || event.error === 'audio-capture' || event.error === 'no-speech') {
+          setIsMicAvailable(false);
+        }
       };
+    } else {
+      setIsMicAvailable(false);
     }
 
     return () => {
@@ -181,7 +187,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
           <p className="text-primary mt-4">Speaking...</p>
         )}
         
-        {!isListening && !isAISpeaking && messages.length === 0 && (
+        {!isListening && !isAISpeaking && messages.length === 0 && isMicAvailable && (
           <p className="text-muted-foreground mt-4">Say something or type a message</p>
         )}
       </div>
@@ -217,18 +223,18 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Only show direct mic button when not listening or speaking */}
+      {/* Update the mic button styling */}
       {!isListening && !isAISpeaking && (
         <Button
           onClick={toggleListening}
-          className="absolute bottom-24 left-1/2 transform -translate-x-1/2 rounded-full h-14 w-14 bg-primary hover:bg-primary/90"
+          className="absolute bottom-24 left-1/2 transform -translate-x-1/2 rounded-full h-16 w-16 bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-90 shadow-lg"
           size="icon"
         >
-          <Mic className="h-6 w-6" />
+          <Mic className="h-8 w-8 text-white" />
         </Button>
       )}
 
-      {/* Animated Speech Input - bottom right corner */}
+      {/* Animated Speech Input - back to corner position */}
       <AnimatedSpeechInput
         onSend={handleSend}
         isListening={isListening}
