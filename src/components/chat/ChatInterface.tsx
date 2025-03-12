@@ -22,6 +22,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isMicAvailable, setIsMicAvailable] = useState(true);
+  const [transcribedText, setTranscribedText] = useState("");
 
   // Demo responses for testing
   const demoResponses = [
@@ -56,7 +57,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
           .map(result => (result as any)[0])
           .map(result => result.transcript)
           .join("");
-        setCurrentInput(transcript);
+        setTranscribedText(transcript);
       };
 
       recognitionRef.current.onerror = (event: any) => {
@@ -103,34 +104,29 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
     if (isListening) {
       recognitionRef.current.stop();
       setIsListening(false);
-      
-      // If we have transcribed text, send it
-      if (currentInput.trim()) {
-        handleSend(currentInput);
-      } else {
-        toast.success("Listening stopped");
-      }
+      toast.success("Listening stopped");
     } else {
       recognitionRef.current.start();
       setIsListening(true);
       toast.success("Listening...");
-      setCurrentInput("");
+      setTranscribedText("");
       setIsAISpeaking(false);
     }
   };
 
-  const handleSend = async (textToSend = currentInput) => {
+  const handleSend = async (textToSend = transcribedText) => {
     if (!textToSend.trim() || isProcessing) return;
     
     if (isListening) {
-      toggleListening();
+      recognitionRef.current.stop();
+      setIsListening(false);
     }
 
     const userMessage = textToSend;
     const timestamp = new Date().toISOString();
     
     setMessages(prev => [...prev, { sender: 'user', content: userMessage, timestamp }]);
-    setCurrentInput("");
+    setTranscribedText("");
     setIsProcessing(true);
 
     try {
@@ -183,12 +179,34 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
           <p className="text-primary animate-pulse mt-4">Listening...</p>
         )}
         
-        {isAISpeaking && (
-          <p className="text-primary mt-4">Speaking...</p>
+        {isListening && (
+          <div className="mt-4 p-4 bg-secondary/10 rounded-lg w-full max-w-2xl">
+            <p className="text-lg">{transcribedText || "Speak now..."}</p>
+            <div className="mt-4 flex justify-end space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={toggleListening}
+                className="flex items-center gap-2"
+              >
+                <MicOff className="h-4 w-4" />
+                Stop Listening
+              </Button>
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={() => handleSend()}
+                disabled={!transcribedText.trim()}
+                className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500"
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
         )}
         
-        {!isListening && !isAISpeaking && messages.length === 0 && isMicAvailable && (
-          <p className="text-muted-foreground mt-4">Say something or type a message</p>
+        {isAISpeaking && (
+          <p className="text-primary mt-4">Speaking...</p>
         )}
       </div>
 
@@ -223,7 +241,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Update the mic button styling */}
+      {/* Mic button when not currently listening */}
       {!isListening && !isAISpeaking && (
         <Button
           onClick={toggleListening}
