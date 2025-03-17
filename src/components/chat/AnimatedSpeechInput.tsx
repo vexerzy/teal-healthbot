@@ -44,17 +44,15 @@ export const AnimatedSpeechInput = ({
       <AnimatePresence>
         {isExpanded ? (
           <motion.div
-            initial={{ width: "80px", height: "80px", borderRadius: "50%", right: 0 }}
+            initial={{ width: "60px", height: "60px", borderRadius: "50%" }}
             animate={{ 
-              width: "calc(100vw - 2rem)", 
+              width: ["60px", "calc(min(600px, 100vw - 2rem))"],
               height: "60px", 
-              borderRadius: "30px",
-              x: "calc(-100vw + 80px + 2rem)"
+              borderRadius: "30px"
             }}
-            exit={{ width: "80px", height: "80px", borderRadius: "50%", right: 0 }}
+            exit={{ width: "60px", height: "60px", borderRadius: "50%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="flex items-center gap-2 shadow-lg overflow-hidden absolute bottom-0 bg-gradient-to-r from-cyan-500 to-blue-500"
-            style={{ maxWidth: "1200px", originX: 1, originY: 0.5 }}
+            className="flex items-center gap-2 shadow-lg overflow-hidden absolute bottom-0 right-0 bg-gradient-to-r from-indigo-500 to-purple-600"
           >
             <Button
               variant="ghost"
@@ -109,10 +107,10 @@ export const AnimatedSpeechInput = ({
             exit={{ scale: 0.8, opacity: 0 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="h-20 w-20 rounded-full flex items-center justify-center shadow-lg bg-gradient-to-r from-cyan-500 to-blue-500"
+            className="h-16 w-16 rounded-full flex items-center justify-center shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600"
             onClick={handleToggleExpand}
           >
-            <MessageCircle className="h-10 w-10 text-white" />
+            <MessageCircle className="h-8 w-8 text-white" />
           </motion.button>
         )}
       </AnimatePresence>

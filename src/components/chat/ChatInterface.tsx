@@ -165,9 +165,9 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
   };
 
   return (
-    <div className="w-full max-w-4xl h-[80vh] animate-fadeIn flex flex-col items-center">
-      {/* Centered Audio Visualizer */}
-      <div className="flex flex-col items-center justify-center mt-8 mb-8">
+    <div className="w-full max-w-4xl h-[80vh] animate-fadeIn flex flex-col items-center relative">
+      {/* Centered Audio Visualizer with improved styling */}
+      <div className="flex flex-col items-center justify-center mt-8 mb-4">
         <div className={`transform transition-all duration-300 ${isListening ? 'scale-110' : isAISpeaking ? 'scale-105' : 'scale-100'}`}>
           <AudioVisualizer 
             isAISpeaking={isAISpeaking || isListening}
@@ -176,11 +176,11 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
         </div>
         
         {isListening && (
-          <p className="text-primary animate-pulse mt-4">Listening...</p>
+          <p className="text-primary animate-pulse mt-4 font-medium">Listening...</p>
         )}
         
         {isListening && (
-          <div className="mt-4 p-4 bg-secondary/10 rounded-lg w-full max-w-2xl">
+          <div className="mt-4 p-4 bg-secondary/10 rounded-lg w-full max-w-2xl shadow-md backdrop-blur-sm border border-purple-100/10">
             <p className="text-lg">{transcribedText || "Speak now..."}</p>
             <div className="mt-4 flex justify-end space-x-2">
               <Button 
@@ -197,7 +197,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
                 size="sm" 
                 onClick={() => handleSend()}
                 disabled={!transcribedText.trim()}
-                className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500"
+                className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600"
               >
                 Submit
               </Button>
@@ -206,23 +206,23 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
         )}
         
         {isAISpeaking && (
-          <p className="text-primary mt-4">Speaking...</p>
+          <p className="text-primary mt-4 font-medium">Speaking...</p>
         )}
       </div>
 
-      {/* Messages display - more minimal and cleaner */}
-      <div className="w-full flex-grow flex flex-col overflow-y-auto px-4 mt-4 no-scrollbar">
+      {/* Messages display with improved styling */}
+      <div className="w-full flex-grow flex flex-col overflow-y-auto px-4 py-4 space-y-4 no-scrollbar bg-opacity-5 rounded-lg backdrop-blur-sm">
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`p-3 mb-2 rounded-lg max-w-[80%] ${
+            className={`p-4 rounded-lg max-w-[80%] shadow-sm ${
               msg.sender === 'user'
-                ? 'bg-primary/10 ml-auto'
-                : 'bg-secondary/10 mr-auto'
+                ? 'bg-gradient-to-br from-indigo-500/10 to-purple-600/10 border border-purple-300/10 ml-auto'
+                : 'bg-gradient-to-br from-purple-600/10 to-indigo-500/10 border border-indigo-300/10 mr-auto'
             }`}
           >
             <div className="flex flex-col">
-              <span>{msg.content}</span>
+              <span className="leading-relaxed">{msg.content}</span>
               <span className="text-xs text-muted-foreground mt-1">
                 {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
               </span>
@@ -230,11 +230,11 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
           </div>
         ))}
         {isProcessing && (
-          <div className="bg-secondary/10 p-3 rounded-lg max-w-[80%] mr-auto mb-2">
+          <div className="bg-gradient-to-br from-purple-600/10 to-indigo-500/10 border border-indigo-300/10 p-4 rounded-lg max-w-[80%] mr-auto shadow-sm">
             <div className="flex space-x-2">
-              <div className="h-2 w-2 bg-current rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-              <div className="h-2 w-2 bg-current rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-              <div className="h-2 w-2 bg-current rounded-full animate-bounce"></div>
+              <div className="h-2 w-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+              <div className="h-2 w-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+              <div className="h-2 w-2 bg-indigo-400 rounded-full animate-bounce"></div>
             </div>
           </div>
         )}
@@ -245,14 +245,14 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
       {!isListening && !isAISpeaking && (
         <Button
           onClick={toggleListening}
-          className="absolute bottom-24 left-1/2 transform -translate-x-1/2 rounded-full h-16 w-16 bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-90 shadow-lg"
+          className="absolute bottom-24 left-1/2 transform -translate-x-1/2 rounded-full h-16 w-16 bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90 shadow-lg"
           size="icon"
         >
           <Mic className="h-8 w-8 text-white" />
         </Button>
       )}
 
-      {/* Animated Speech Input - back to corner position */}
+      {/* Animated Speech Input */}
       <AnimatedSpeechInput
         onSend={handleSend}
         isListening={isListening}
