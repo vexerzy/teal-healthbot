@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, Send } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { initSpeechRecognition } from "@/utils/speechRecognition";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isMicAvailable, setIsMicAvailable] = useState(true);
   const [transcribedText, setTranscribedText] = useState("");
+  const [showTextInput, setShowTextInput] = useState(false);
 
   // Demo responses for testing
   const demoResponses = [
@@ -108,6 +109,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
     } else {
       recognitionRef.current.start();
       setIsListening(true);
+      setShowTextInput(false);
       toast.success("Listening...");
       setTranscribedText("");
       setIsAISpeaking(false);
@@ -128,6 +130,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
     setMessages(prev => [...prev, { sender: 'user', content: userMessage, timestamp }]);
     setTranscribedText("");
     setIsProcessing(true);
+    setShowTextInput(false);
 
     try {
       // Instead of making an API call, use a random demo response
@@ -142,7 +145,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
       
       // Simulate text-to-speech with audio visualizer
       setIsAISpeaking(true);
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
       setIsAISpeaking(false);
     } catch (error) {
       console.error('Error:', error);
@@ -164,73 +167,31 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
     }
   };
 
-  return (
-    <div className="w-full h-[90vh] animate-fadeIn flex flex-col items-center relative">
-      <div className="stethoscope-pattern"></div>
-      
-      {/* Chat Header */}
-      <div className="w-full py-6 bg-gradient-to-r from-primary/10 to-primary/5 backdrop-blur-sm border-b border-primary/20 mb-8">
-        <h2 className="text-2xl font-bold text-primary">Health Assistant</h2>
-        <p className="text-muted-foreground">Ask me anything about your health concerns</p>
-      </div>
-      
-      {/* Centered Audio Visualizer with improved styling */}
-      <div className="flex flex-col items-center justify-center mb-8 scale-125">
-        <div className={`transform transition-all duration-300 ${isListening ? 'scale-110' : isAISpeaking ? 'scale-105' : 'scale-100'}`}>
-          <AudioVisualizer 
-            isAISpeaking={isAISpeaking || isListening}
-            audioRef={audioRef}
-          />
-        </div>
-        
-        {isListening && (
-          <p className="text-primary animate-pulse mt-4 font-medium">Listening...</p>
-        )}
-        
-        {isListening && (
-          <div className="mt-4 p-6 bg-primary/5 rounded-lg w-full max-w-3xl shadow-md backdrop-blur-sm border border-primary/20">
-            <p className="text-xl">{transcribedText || "Speak now..."}</p>
-            <div className="mt-6 flex justify-end space-x-4">
-              <Button 
-                variant="outline" 
-                size="lg" 
-                onClick={toggleListening}
-                className="flex items-center gap-2"
-              >
-                <MicOff className="h-5 w-5" />
-                Stop Listening
-              </Button>
-              <Button 
-                variant="default" 
-                size="lg" 
-                onClick={() => handleSend()}
-                disabled={!transcribedText.trim()}
-                className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                Submit
-              </Button>
-            </div>
-          </div>
-        )}
-        
-        {isAISpeaking && (
-          <p className="text-primary mt-4 font-medium">Speaking...</p>
-        )}
-      </div>
+  const toggleTextInput = () => {
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+    setShowTextInput(!showTextInput);
+  };
 
+  return (
+    <div className="w-full h-[calc(100vh-80px)] animate-fadeIn flex flex-col items-center relative overflow-hidden">
+      <div className="stethoscope-pattern opacity-10"></div>
+      
       {/* Messages display with improved styling */}
-      <div className="w-full flex-grow flex flex-col overflow-y-auto px-8 py-6 space-y-6 no-scrollbar bg-card/10 backdrop-blur-sm rounded-lg border border-primary/10 shadow-inner">
+      <div className="w-full max-w-7xl flex-grow flex flex-col overflow-y-auto px-4 md:px-8 pt-4 pb-20 space-y-4 no-scrollbar">
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`p-5 rounded-2xl max-w-[80%] shadow-lg ${
+            className={`p-4 rounded-xl max-w-[80%] shadow-md ${
               msg.sender === 'user'
                 ? 'bg-primary/10 border border-primary/20 ml-auto'
                 : 'bg-background/80 border border-primary/10 mr-auto'
             }`}
           >
             <div className="flex flex-col">
-              <span className="leading-relaxed text-lg">{msg.content}</span>
+              <span className="leading-relaxed">{msg.content}</span>
               <span className="text-xs text-muted-foreground mt-2">
                 {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
               </span>
@@ -238,35 +199,116 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
           </div>
         ))}
         {isProcessing && (
-          <div className="bg-background/80 border border-primary/10 p-4 rounded-2xl max-w-[80%] mr-auto shadow-lg">
+          <div className="bg-background/80 border border-primary/10 p-3 rounded-xl max-w-[80%] mr-auto shadow-md">
             <div className="flex space-x-2">
-              <div className="h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-              <div className="h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-              <div className="h-3 w-3 bg-primary rounded-full animate-bounce"></div>
+              <div className="h-2 w-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+              <div className="h-2 w-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+              <div className="h-2 w-2 bg-primary rounded-full animate-bounce"></div>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Mic button when not currently listening */}
-      {!isListening && !isAISpeaking && (
-        <Button
-          onClick={toggleListening}
-          className="mt-8 mb-6 rounded-full h-20 w-20 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
-          size="icon"
-        >
-          <Mic className="h-10 w-10" />
-        </Button>
+      {/* Listening mode UI */}
+      {isListening && (
+        <div className="absolute bottom-20 left-0 right-0 mx-auto p-4 bg-primary/5 rounded-lg w-full max-w-3xl shadow-md backdrop-blur-sm border border-primary/20">
+          <p className="text-lg">{transcribedText || "Speak now..."}</p>
+          <div className="mt-4 flex justify-end space-x-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={toggleListening}
+              className="flex items-center gap-2"
+            >
+              <MicOff className="h-4 w-4" />
+              Stop Listening
+            </Button>
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={() => handleSend()}
+              disabled={!transcribedText.trim()}
+              className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              <Send className="h-4 w-4" />
+              Submit
+            </Button>
+          </div>
+        </div>
       )}
 
-      {/* Animated Speech Input */}
-      <AnimatedSpeechInput
-        onSend={handleSend}
-        isListening={isListening}
-        toggleListening={toggleListening}
-        isProcessing={isProcessing}
-      />
+      {/* Centered Audio Visualizer with improved styling */}
+      {(isListening || isAISpeaking) && (
+        <div className="absolute bottom-72 left-0 right-0 flex flex-col items-center justify-center">
+          <div className={`transform transition-all duration-300 ${isListening ? 'scale-105' : isAISpeaking ? 'scale-100' : 'scale-95'}`}>
+            <AudioVisualizer 
+              isAISpeaking={isAISpeaking || isListening}
+              audioRef={audioRef}
+            />
+          </div>
+          
+          {isListening && (
+            <p className="text-primary animate-pulse mt-2 font-medium">Listening...</p>
+          )}
+          
+          {isAISpeaking && (
+            <p className="text-primary mt-2 font-medium">Speaking...</p>
+          )}
+        </div>
+      )}
+
+      {/* Text input mode UI */}
+      {showTextInput && !isListening && (
+        <div className="fixed bottom-4 left-0 right-0 mx-auto w-full max-w-3xl px-4">
+          <div className="flex gap-2 items-center">
+            <input 
+              type="text" 
+              value={currentInput}
+              onChange={(e) => setCurrentInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSend(currentInput);
+                  setCurrentInput('');
+                }
+              }}
+              placeholder="Type your message..." 
+              className="flex-grow p-3 rounded-lg border border-primary/20 bg-background/80 backdrop-blur-sm focus:border-primary"
+            />
+            <Button 
+              onClick={() => {
+                handleSend(currentInput);
+                setCurrentInput('');
+              }}
+              disabled={!currentInput.trim()}
+              size="icon"
+              className="rounded-full bg-primary text-primary-foreground h-10 w-10"
+            >
+              <Send className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Mic button when not listening or using text input */}
+      {!isListening && !showTextInput && (
+        <div className="fixed bottom-4 left-0 right-0 flex justify-center">
+          <Button
+            onClick={toggleListening}
+            className="rounded-full h-12 w-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md"
+            size="icon"
+          >
+            <Mic className="h-6 w-6" />
+          </Button>
+          <Button
+            onClick={toggleTextInput}
+            className="rounded-full h-12 w-12 ml-4 bg-primary/80 hover:bg-primary/90 text-primary-foreground shadow-md"
+            size="icon"
+          >
+            <Send className="h-6 w-6" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

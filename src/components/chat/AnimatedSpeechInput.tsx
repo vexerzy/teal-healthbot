@@ -36,17 +36,18 @@ export const AnimatedSpeechInput = ({
     if (inputText.trim()) {
       onSend(inputText);
       setInputText("");
+      setIsExpanded(false);
     }
   };
 
   return (
-    <div className="fixed bottom-8 right-8 z-50">
+    <div className="fixed bottom-6 right-6 z-40">
       <AnimatePresence>
         {isExpanded ? (
           <motion.div
             initial={{ width: "60px", height: "60px", borderRadius: "50%" }}
             animate={{ 
-              width: ["60px", "calc(min(600px, 100vw - 2rem))"],
+              width: "min(500px, 90vw)",
               height: "60px", 
               borderRadius: "30px"
             }}
@@ -57,10 +58,10 @@ export const AnimatedSpeechInput = ({
             <Button
               variant="ghost"
               size="icon"
-              className="h-12 w-12 ml-2 bg-transparent text-primary-foreground hover:bg-white/10"
+              className="h-12 w-12 ml-1 bg-transparent text-primary-foreground hover:bg-white/10"
               onClick={handleToggleExpand}
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5" />
             </Button>
             
             <Input
@@ -79,38 +80,24 @@ export const AnimatedSpeechInput = ({
             <Button
               variant="ghost"
               size="icon"
-              className={`h-12 w-12 ${isListening ? "bg-white/20" : ""} text-primary-foreground hover:bg-white/20`}
-              onClick={toggleListening}
-              disabled={isProcessing}
-            >
-              {isListening ? (
-                <MicOff className="h-6 w-6 animate-pulse text-red-400" />
-              ) : (
-                <Mic className="h-6 w-6" />
-              )}
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-12 w-12 mr-2 text-primary-foreground hover:bg-white/20"
+              className="h-12 w-12 text-primary-foreground hover:bg-white/20"
               onClick={handleSend}
               disabled={!inputText.trim() || isProcessing}
             >
-              <Send className="h-6 w-6" />
+              <Send className="h-5 w-5" />
             </Button>
           </motion.div>
         ) : (
           <motion.button
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0.8 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
+            exit={{ scale: 0.9, opacity: 0 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="h-16 w-16 rounded-full flex items-center justify-center shadow-lg bg-primary text-primary-foreground"
+            className="h-12 w-12 rounded-full flex items-center justify-center shadow-md bg-primary text-primary-foreground"
             onClick={handleToggleExpand}
           >
-            <MessageCircle className="h-8 w-8 text-primary-foreground" />
+            <MessageCircle className="h-6 w-6 text-primary-foreground" />
           </motion.button>
         )}
       </AnimatePresence>
