@@ -10,6 +10,9 @@ import Chat from "./pages/Chat";
 import AudioDemo from "./pages/AudioDemo";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
+import UserProfile from "./pages/UserProfile";
+import History from "./pages/History";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +26,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/history" element={<History />} />
             <Route path="/audio-demo" element={<AudioDemo />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
