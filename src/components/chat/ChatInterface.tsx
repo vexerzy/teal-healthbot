@@ -1,11 +1,10 @@
 
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Send } from "lucide-react";
+import { Mic, MicOff, Send, MessageSquare, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { initSpeechRecognition } from "@/utils/speechRecognition";
 import { toast } from "sonner";
-import { AudioVisualizer } from "../audio/AudioVisualizer";
-import { AnimatedSpeechInput } from "./AnimatedSpeechInput";
+import { PulsingFlame } from "./PulsingFlame";
 
 interface ChatInterfaceProps {
   onSend: (message: string) => void;
@@ -143,7 +142,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
       
       setMessages(prev => [...prev, { sender: 'ai', content: aiResponse, timestamp: new Date().toISOString() }]);
       
-      // Simulate text-to-speech with audio visualizer
+      // Simulate text-to-speech with flame animation
       setIsAISpeaking(true);
       await new Promise(resolve => setTimeout(resolve, 2000));
       setIsAISpeaking(false);
@@ -238,15 +237,10 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
         </div>
       )}
 
-      {/* Centered Audio Visualizer with improved styling */}
+      {/* Centered Flame Animation */}
       {(isListening || isAISpeaking) && (
         <div className="absolute bottom-72 left-0 right-0 flex flex-col items-center justify-center">
-          <div className={`transform transition-all duration-300 ${isListening ? 'scale-105' : isAISpeaking ? 'scale-100' : 'scale-95'}`}>
-            <AudioVisualizer 
-              isAISpeaking={isAISpeaking || isListening}
-              audioRef={audioRef}
-            />
-          </div>
+          <PulsingFlame isActive={isAISpeaking || isListening} />
           
           {isListening && (
             <p className="text-primary animate-pulse mt-2 font-medium">Listening...</p>
@@ -286,27 +280,39 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
             >
               <Send className="h-5 w-5" />
             </Button>
+            <Button
+              onClick={toggleTextInput}
+              size="icon"
+              className="rounded-full h-10 w-10 bg-primary/20 hover:bg-primary/30 text-primary"
+            >
+              <X className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       )}
 
-      {/* Mic button when not listening or using text input */}
-      {!isListening && !showTextInput && (
-        <div className="fixed bottom-4 left-0 right-0 flex justify-center">
-          <Button
-            onClick={toggleListening}
-            className="rounded-full h-12 w-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md"
-            size="icon"
-          >
-            <Mic className="h-6 w-6" />
-          </Button>
-          <Button
-            onClick={toggleTextInput}
-            className="rounded-full h-12 w-12 ml-4 bg-primary/80 hover:bg-primary/90 text-primary-foreground shadow-md"
-            size="icon"
-          >
-            <Send className="h-6 w-6" />
-          </Button>
+      {/* Interaction buttons */}
+      {!isListening && (
+        <div className="fixed bottom-4 left-0 right-0 flex justify-center gap-4">
+          {!showTextInput && (
+            <Button
+              onClick={toggleTextInput}
+              className="rounded-full h-12 w-12 bg-primary/80 hover:bg-primary/90 text-primary-foreground shadow-md"
+              size="icon"
+            >
+              <MessageSquare className="h-6 w-6" />
+            </Button>
+          )}
+          
+          {!showTextInput && (
+            <Button
+              onClick={toggleListening}
+              className="rounded-full h-12 w-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md"
+              size="icon"
+            >
+              <Mic className="h-6 w-6" />
+            </Button>
+          )}
         </div>
       )}
     </div>

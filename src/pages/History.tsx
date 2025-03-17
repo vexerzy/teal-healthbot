@@ -1,11 +1,9 @@
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/UserContext";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageSquare, Trash2, Clock } from "lucide-react";
-import { toast } from "sonner";
-import { format } from "date-fns";
+import { ArrowLeft } from "lucide-react";
 import { AppNavbar } from "@/components/layout/AppNavbar";
 import { ChatHistory } from "@/components/chat/ChatHistory";
 
@@ -20,9 +18,6 @@ const History = () => {
   }, [user, isLoading, navigate]);
 
   const handleSelectConversation = (conversation: any) => {
-    // In a real app, you would store the selected conversation in a context
-    // and then navigate to the chat page
-    // For now, we'll just navigate to the chat page
     localStorage.setItem("currentConversation", conversation.id);
     navigate("/chat");
   };
@@ -43,7 +38,7 @@ const History = () => {
     <div className="min-h-screen bg-background">
       <AppNavbar currentPage="history" />
       
-      <div className="container py-8 px-4">
+      <div className="container max-w-4xl mx-auto py-8 px-4">
         <div className="flex items-center mb-6">
           <Button variant="ghost" size="icon" asChild className="mr-2">
             <Link to="/">
