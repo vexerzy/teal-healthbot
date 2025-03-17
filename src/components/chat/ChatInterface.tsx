@@ -165,9 +165,17 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
   };
 
   return (
-    <div className="w-full max-w-4xl h-[80vh] animate-fadeIn flex flex-col items-center relative">
+    <div className="w-full h-[90vh] animate-fadeIn flex flex-col items-center relative">
+      <div className="stethoscope-pattern"></div>
+      
+      {/* Chat Header */}
+      <div className="w-full py-6 bg-gradient-to-r from-primary/10 to-primary/5 backdrop-blur-sm border-b border-primary/20 mb-8">
+        <h2 className="text-2xl font-bold text-primary">Health Assistant</h2>
+        <p className="text-muted-foreground">Ask me anything about your health concerns</p>
+      </div>
+      
       {/* Centered Audio Visualizer with improved styling */}
-      <div className="flex flex-col items-center justify-center mt-8 mb-4">
+      <div className="flex flex-col items-center justify-center mb-8 scale-125">
         <div className={`transform transition-all duration-300 ${isListening ? 'scale-110' : isAISpeaking ? 'scale-105' : 'scale-100'}`}>
           <AudioVisualizer 
             isAISpeaking={isAISpeaking || isListening}
@@ -180,24 +188,24 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
         )}
         
         {isListening && (
-          <div className="mt-4 p-4 bg-secondary/10 rounded-lg w-full max-w-2xl shadow-md backdrop-blur-sm border border-purple-100/10">
-            <p className="text-lg">{transcribedText || "Speak now..."}</p>
-            <div className="mt-4 flex justify-end space-x-2">
+          <div className="mt-4 p-6 bg-primary/5 rounded-lg w-full max-w-3xl shadow-md backdrop-blur-sm border border-primary/20">
+            <p className="text-xl">{transcribedText || "Speak now..."}</p>
+            <div className="mt-6 flex justify-end space-x-4">
               <Button 
                 variant="outline" 
-                size="sm" 
+                size="lg" 
                 onClick={toggleListening}
                 className="flex items-center gap-2"
               >
-                <MicOff className="h-4 w-4" />
+                <MicOff className="h-5 w-5" />
                 Stop Listening
               </Button>
               <Button 
                 variant="default" 
-                size="sm" 
+                size="lg" 
                 onClick={() => handleSend()}
                 disabled={!transcribedText.trim()}
-                className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600"
+                className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 Submit
               </Button>
@@ -211,30 +219,30 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
       </div>
 
       {/* Messages display with improved styling */}
-      <div className="w-full flex-grow flex flex-col overflow-y-auto px-4 py-4 space-y-4 no-scrollbar bg-opacity-5 rounded-lg backdrop-blur-sm">
+      <div className="w-full flex-grow flex flex-col overflow-y-auto px-8 py-6 space-y-6 no-scrollbar bg-card/10 backdrop-blur-sm rounded-lg border border-primary/10 shadow-inner">
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`p-4 rounded-lg max-w-[80%] shadow-sm ${
+            className={`p-5 rounded-2xl max-w-[80%] shadow-lg ${
               msg.sender === 'user'
-                ? 'bg-gradient-to-br from-indigo-500/10 to-purple-600/10 border border-purple-300/10 ml-auto'
-                : 'bg-gradient-to-br from-purple-600/10 to-indigo-500/10 border border-indigo-300/10 mr-auto'
+                ? 'bg-primary/10 border border-primary/20 ml-auto'
+                : 'bg-background/80 border border-primary/10 mr-auto'
             }`}
           >
             <div className="flex flex-col">
-              <span className="leading-relaxed">{msg.content}</span>
-              <span className="text-xs text-muted-foreground mt-1">
+              <span className="leading-relaxed text-lg">{msg.content}</span>
+              <span className="text-xs text-muted-foreground mt-2">
                 {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
               </span>
             </div>
           </div>
         ))}
         {isProcessing && (
-          <div className="bg-gradient-to-br from-purple-600/10 to-indigo-500/10 border border-indigo-300/10 p-4 rounded-lg max-w-[80%] mr-auto shadow-sm">
+          <div className="bg-background/80 border border-primary/10 p-4 rounded-2xl max-w-[80%] mr-auto shadow-lg">
             <div className="flex space-x-2">
-              <div className="h-2 w-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-              <div className="h-2 w-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-              <div className="h-2 w-2 bg-indigo-400 rounded-full animate-bounce"></div>
+              <div className="h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+              <div className="h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+              <div className="h-3 w-3 bg-primary rounded-full animate-bounce"></div>
             </div>
           </div>
         )}
@@ -245,10 +253,10 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
       {!isListening && !isAISpeaking && (
         <Button
           onClick={toggleListening}
-          className="absolute bottom-24 left-1/2 transform -translate-x-1/2 rounded-full h-16 w-16 bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90 shadow-lg"
+          className="mt-8 mb-6 rounded-full h-20 w-20 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
           size="icon"
         >
-          <Mic className="h-8 w-8 text-white" />
+          <Mic className="h-10 w-10" />
         </Button>
       )}
 

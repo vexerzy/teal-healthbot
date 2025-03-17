@@ -23,39 +23,41 @@ const Chat = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
-      <div className="w-full max-w-4xl flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Chat</h1>
+    <div className="min-h-screen flex flex-col items-center justify-start p-0 bg-background w-full">
+      <div className="stethoscope-pattern"></div>
+      
+      <div className="w-full bg-gradient-to-r from-primary/10 to-primary/5 py-4 px-8 flex justify-between items-center mb-4 border-b border-primary/20">
+        <h1 className="text-2xl font-bold text-primary">Health Assistant</h1>
         
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Button 
             variant="outline" 
-            size="sm" 
+            size="default" 
             onClick={() => setViewingHistory(!viewingHistory)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 border-primary/30 text-primary"
           >
-            <MessageSquare className="h-4 w-4" />
+            <MessageSquare className="h-5 w-5" />
             {viewingHistory ? "Back to Chat" : "History"}
           </Button>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Menu className="h-4 w-4" />
+              <Button variant="outline" size="icon" className="border-primary/30">
+                <Menu className="h-5 w-5 text-primary" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={logout}
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-5 w-5" />
                 Logout
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer"
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-5 w-5" />
                 Settings
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -64,21 +66,23 @@ const Chat = () => {
       </div>
       
       {viewingHistory ? (
-        <ChatHistory 
-          userId={user?.id} 
-          onSelectConversation={handleSelectConversation} 
-        />
+        <div className="w-full px-8">
+          <ChatHistory 
+            userId={user?.id} 
+            onSelectConversation={handleSelectConversation} 
+          />
+        </div>
       ) : (
-        <>
+        <div className="w-full px-4">
           {selectedConversation && (
-            <div className="w-full max-w-4xl mb-4">
+            <div className="w-full mb-4 px-4">
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setSelectedConversation(null)}
-                className="flex items-center gap-2 mb-2 -ml-2"
+                className="flex items-center gap-2 mb-2 text-primary"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-5 w-5" />
                 Back to new chat
               </Button>
             </div>
@@ -87,7 +91,7 @@ const Chat = () => {
             onSend={() => {}} 
             userId={user?.id} 
           />
-        </>
+        </div>
       )}
     </div>
   );

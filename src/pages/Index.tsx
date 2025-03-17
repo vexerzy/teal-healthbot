@@ -99,7 +99,9 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative">
+    <div className="min-h-screen flex flex-col items-center justify-center p-0 bg-background relative w-full">
+      <div className="stethoscope-pattern"></div>
+      
       {!showWelcome && !showEmailForm && !showHealthForm && (
         <div className="absolute top-4 left-4 z-50">
           <DropdownMenu>
@@ -127,25 +129,31 @@ const Index = () => {
       )}
 
       {showWelcome && (
-        <WelcomeScreen onGetStarted={() => {
-          setShowWelcome(false);
-          setShowEmailForm(true);
-        }} />
+        <div className="w-full max-w-none px-4">
+          <WelcomeScreen onGetStarted={() => {
+            setShowWelcome(false);
+            setShowEmailForm(true);
+          }} />
+        </div>
       )}
       
       {!showWelcome && showEmailForm && (
-        <AuthScreen
-          onLogin={handleLogin}
-          onSignUp={handleSignUp}
-        />
+        <div className="w-full max-w-md px-4">
+          <AuthScreen
+            onLogin={handleLogin}
+            onSignUp={handleSignUp}
+          />
+        </div>
       )}
       
       {showHealthForm && (
-        <HealthForm
-          healthInfo={healthInfo}
-          onHealthInfoChange={setHealthInfo}
-          onSubmit={handleHealthSubmit}
-        />
+        <div className="w-full max-w-md px-4">
+          <HealthForm
+            healthInfo={healthInfo}
+            onHealthInfoChange={setHealthInfo}
+            onSubmit={handleHealthSubmit}
+          />
+        </div>
       )}
     </div>
   );
