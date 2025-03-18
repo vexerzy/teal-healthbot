@@ -1,6 +1,5 @@
-
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Send, MessageSquare, X } from "lucide-react";
+import { Mic, MicOff, MessageSquare, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { initSpeechRecognition } from "@/utils/speechRecognition";
 import { toast } from "sonner";
@@ -230,25 +229,18 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
               disabled={!transcribedText.trim()}
               className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              <Send className="h-4 w-4" />
+              <MessageSquare className="h-4 w-4" />
               Submit
             </Button>
           </div>
         </div>
       )}
 
-      {/* Centered Flame Animation */}
-      {(isListening || isAISpeaking) && (
+      {/* No more flame animation during AI speech */}
+      {isListening && (
         <div className="absolute bottom-72 left-0 right-0 flex flex-col items-center justify-center">
-          <PulsingFlame isActive={isAISpeaking || isListening} />
-          
-          {isListening && (
-            <p className="text-primary animate-pulse mt-2 font-medium">Listening...</p>
-          )}
-          
-          {isAISpeaking && (
-            <p className="text-primary mt-2 font-medium">Speaking...</p>
-          )}
+          <PulsingFlame isActive={isListening} />
+          <p className="text-primary animate-pulse mt-2 font-medium">Listening...</p>
         </div>
       )}
 
@@ -278,7 +270,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
               size="icon"
               className="rounded-full bg-primary text-primary-foreground h-10 w-10"
             >
-              <Send className="h-5 w-5" />
+              <MessageSquare className="h-5 w-5" />
             </Button>
             <Button
               onClick={toggleTextInput}

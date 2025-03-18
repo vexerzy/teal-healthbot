@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { WelcomeScreen } from "@/components/welcome/WelcomeScreen";
 import { AuthScreen } from "@/components/auth/AuthScreen";
@@ -25,14 +24,11 @@ const Index = () => {
   });
   const navigate = useNavigate();
 
-  // Check if user is already logged in
   useEffect(() => {
     if (user && !isLoading) {
-      // Skip welcome and auth screens if already logged in
       setShowWelcome(false);
       setShowEmailForm(false);
       
-      // Check if health info exists
       const savedHealthInfo = localStorage.getItem(`healthInfo-${user.id}`);
       if (savedHealthInfo) {
         setHealthInfo(JSON.parse(savedHealthInfo));
@@ -48,7 +44,6 @@ const Index = () => {
       setShowEmailForm(false);
       const savedHealthInfo = localStorage.getItem(`healthInfo-${user?.id}`);
       if (savedHealthInfo) {
-        // Do not auto-navigate
       } else {
         setShowHealthForm(true);
       }
@@ -66,13 +61,11 @@ const Index = () => {
 
   const handleHealthSubmit = () => {
     if (user) {
-      // Save health info
       localStorage.setItem(`healthInfo-${user.id}`, JSON.stringify(healthInfo));
     }
     setShowHealthForm(false);
   };
 
-  // Show loading indicator while checking auth state
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -87,13 +80,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-background relative w-full">
-      <div className="stethoscope-pattern"></div>
+      <div className="stethoscope-pattern opacity-10"></div>
       
       {user && <AppNavbar currentPage="home" />}
       
-      <div className={`w-full ${user ? "md:pl-64" : ""} transition-all`}>
+      <div className={`w-full flex flex-col items-center ${user ? "md:pl-64" : ""} transition-all`}>
         {showWelcome && (
-          <div className="w-full max-w-none px-4 py-12">
+          <div className="w-full max-w-none px-4 py-12 flex justify-center">
             <WelcomeScreen onGetStarted={() => {
               setShowWelcome(false);
               setShowEmailForm(true);
