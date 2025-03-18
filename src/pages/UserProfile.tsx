@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
@@ -61,6 +60,11 @@ const UserProfile = () => {
       ...prev,
       [key]: value
     }));
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
   };
 
   if (isLoading) {
@@ -206,7 +210,7 @@ const UserProfile = () => {
                 <>
                   <Button 
                     variant="outline" 
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="text-destructive border-destructive hover:bg-destructive/10"
                   >
                     Log Out
