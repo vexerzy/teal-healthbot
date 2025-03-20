@@ -35,10 +35,10 @@ const History = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex justify-center">
+    <div className="min-h-screen bg-background">
       <AppNavbar currentPage="history" />
       
-      <div className="container max-w-4xl mx-auto py-8 px-4 md:pl-64">
+      <div className="container max-w-4xl mx-auto pt-8 pb-16 px-4 md:pl-64">
         <div className="flex items-center mb-6">
           <Button variant="ghost" size="icon" asChild className="mr-2">
             <Link to="/">

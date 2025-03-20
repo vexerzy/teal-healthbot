@@ -26,7 +26,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check for saved user in localStorage
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error("Error parsing saved user:", error);
+        localStorage.removeItem("user");
+      }
     }
     setIsLoading(false);
   }, []);
@@ -34,16 +39,46 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
-      // For demo purposes, we'll just simulate a successful login
-      // In a real app, you'd validate credentials against a backend
       
       // Simple validation
-      if (!email || !password) {
-        toast.error("Please enter both email and password");
+      if (!email) {
+        toast.error("Please enter your email");
         return false;
       }
       
-      // Create a demo user with a stable ID based on email
+      if (!password) {
+        toast.error("Please enter your password");
+        return false;
+      }
+      
+      // For demo purposes, check if we have a user with this email in localStorage
+      const storedUsers = localStorage.getItem("users");
+      if (storedUsers) {
+        const users = JSON.parse(storedUsers);
+        const existingUser = users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+        
+        if (existingUser) {
+          // In a real app, we'd verify the password hash here
+          // For demo, we'll just compare plaintext (not secure for real apps!)
+          if (existingUser.password !== password) {
+            toast.error("Invalid password");
+            return false;
+          }
+          
+          // Remove password before setting to state
+          const { password: _, ...userWithoutPassword } = existingUser;
+          
+          // Set user in state and localStorage
+          setUser(userWithoutPassword);
+          localStorage.setItem("user", JSON.stringify(userWithoutPassword));
+          
+          toast.success(`Welcome back, ${existingUser.name}!`);
+          return true;
+        }
+      }
+      
+      // For demo, if no matching user, create one (for easier testing)
+      // In a real app, you'd reject the login
       const userId = btoa(email).replace(/[^a-zA-Z0-9]/g, "");
       const newUser = {
         id: userId,
@@ -53,13 +88,19 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Save to localStorage
       localStorage.setItem("user", JSON.stringify(newUser));
+      
+      // For demo purposes, also add to users collection
+      const users = storedUsers ? JSON.parse(storedUsers) : [];
+      users.push({...newUser, password});
+      localStorage.setItem("users", JSON.stringify(users));
+      
       setUser(newUser);
       
       toast.success("Login successful!");
       return true;
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Login failed");
+      toast.error("Login failed. Please try again.");
       return false;
     } finally {
       setIsLoading(false);
@@ -69,13 +110,41 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
+      
       // Simple validation
-      if (!name || !email || !password) {
-        toast.error("Please fill in all fields");
+      if (!name) {
+        toast.error("Please enter your name");
         return false;
       }
       
-      // Create a demo user with a stable ID based on email
+      if (!email) {
+        toast.error("Please enter your email");
+        return false;
+      }
+      
+      if (!password) {
+        toast.error("Please enter a password");
+        return false;
+      }
+      
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters");
+        return false;
+      }
+      
+      // Check if user already exists
+      const storedUsers = localStorage.getItem("users");
+      if (storedUsers) {
+        const users = JSON.parse(storedUsers);
+        const existingUser = users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+        
+        if (existingUser) {
+          toast.error("An account with this email already exists");
+          return false;
+        }
+      }
+      
+      // Create a new user with a stable ID based on email
       const userId = btoa(email).replace(/[^a-zA-Z0-9]/g, "");
       const newUser = {
         id: userId,
@@ -83,15 +152,22 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email
       };
       
-      // Save to localStorage
+      // Save user to localStorage (without password)
       localStorage.setItem("user", JSON.stringify(newUser));
+      
+      // For a real app, you'd hash the password before storing
+      // Also store in users collection for demo
+      const users = storedUsers ? JSON.parse(storedUsers) : [];
+      users.push({...newUser, password});
+      localStorage.setItem("users", JSON.stringify(users));
+      
       setUser(newUser);
       
       toast.success("Account created successfully!");
       return true;
     } catch (error) {
       console.error("Signup error:", error);
-      toast.error("Registration failed");
+      toast.error("Registration failed. Please try again.");
       return false;
     } finally {
       setIsLoading(false);

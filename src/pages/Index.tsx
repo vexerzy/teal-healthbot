@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { WelcomeScreen } from "@/components/welcome/WelcomeScreen";
 import { AuthScreen } from "@/components/auth/AuthScreen";
