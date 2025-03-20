@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { UserProvider } from "@/context/UserContext";
 import Index from "./pages/Index";
 import Chat from "./pages/Chat";
-import AudioDemo from "./pages/AudioDemo";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
@@ -29,7 +28,6 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/history" element={<History />} />
-            <Route path="/audio-demo" element={<AudioDemo />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

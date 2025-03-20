@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useUser } from "@/context/UserContext";
 import { 
@@ -8,10 +7,10 @@ import {
   Settings, 
   User, 
   History,
-  Menu,
-  X
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MobileMenu } from "./MobileMenu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 type NavbarProps = {
@@ -19,8 +18,7 @@ type NavbarProps = {
 };
 
 export const AppNavbar = ({ currentPage }: NavbarProps) => {
-  const { user } = useUser();
-  const [open, setOpen] = useState(false);
+  const { user, logout } = useUser();
 
   const navItems = [
     {
@@ -59,7 +57,7 @@ export const AppNavbar = ({ currentPage }: NavbarProps) => {
 
   return (
     <>
-      {/* Mobile menu */}
+      {/* Mobile header with hamburger menu */}
       <div className="md:hidden fixed top-0 left-0 right-0 bg-background z-50 border-b">
         <div className="flex justify-between items-center p-4">
           <Link to="/" className="flex items-center gap-2">
@@ -69,33 +67,7 @@ export const AppNavbar = ({ currentPage }: NavbarProps) => {
             <span className="font-semibold text-lg">Hearth</span>
           </Link>
           
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-72">
-              <div className="flex flex-col h-full pt-8">
-                <div className="flex flex-col gap-1">
-                  {navItems.map((item) => (
-                    <Button
-                      key={item.name}
-                      variant={item.active ? "default" : "ghost"}
-                      className={`justify-start ${item.active ? 'bg-primary text-primary-foreground' : ''}`}
-                      asChild
-                      onClick={() => setOpen(false)}
-                    >
-                      <Link to={item.path} className="flex items-center gap-3">
-                        {item.icon}
-                        {item.name}
-                      </Link>
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+          <MobileMenu currentPage={currentPage} />
         </div>
       </div>
 
@@ -123,6 +95,17 @@ export const AppNavbar = ({ currentPage }: NavbarProps) => {
                 </Link>
               </Button>
             ))}
+          </div>
+          
+          <div className="mt-auto pt-4 border-t">
+            <Button
+              variant="outline"
+              className="w-full flex items-center gap-2 text-destructive hover:text-destructive"
+              onClick={logout}
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
           </div>
         </div>
       </div>
