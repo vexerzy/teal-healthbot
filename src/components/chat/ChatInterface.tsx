@@ -178,7 +178,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
       <div className="stethoscope-pattern opacity-10"></div>
       
       {/* Messages display with improved styling */}
-      <div className="w-full max-w-7xl flex-grow flex flex-col overflow-y-auto px-4 md:px-8 pt-4 pb-20 space-y-4 no-scrollbar">
+      <div className="w-full max-w-7xl flex-grow flex flex-col overflow-y-auto px-4 md:px-8 pt-4 pb-32 space-y-4 no-scrollbar">
         {messages.map((msg, idx) => (
           <div
             key={idx}
@@ -208,46 +208,43 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Listening mode UI */}
+      {/* Listening mode UI - Moved to bottom and made full width with better spacing */}
       {isListening && (
-        <div className="absolute bottom-20 left-0 right-0 mx-auto p-4 bg-primary/5 rounded-lg w-full max-w-3xl shadow-md backdrop-blur-sm border border-primary/20">
-          <p className="text-lg">{transcribedText || "Speak now..."}</p>
-          <div className="mt-4 flex justify-end space-x-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={toggleListening}
-              className="flex items-center gap-2"
-            >
-              <MicOff className="h-4 w-4" />
-              Stop Listening
-            </Button>
-            <Button 
-              variant="default" 
-              size="sm" 
-              onClick={() => handleSend()}
-              disabled={!transcribedText.trim()}
-              className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <MessageSquare className="h-4 w-4" />
-              Submit
-            </Button>
+        <div className="fixed bottom-0 left-0 right-0 mx-auto p-6 bg-primary/5 backdrop-blur-md border-t border-primary/20 w-full shadow-lg z-10">
+          <div className="max-w-3xl mx-auto flex items-center gap-4">
+            <PulsingFlame isActive={isListening} className="hidden sm:flex flex-shrink-0" />
+            <div className="flex-grow">
+              <p className="text-lg font-medium">{transcribedText || "Speak now..."}</p>
+              <div className="mt-4 flex justify-end space-x-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={toggleListening}
+                  className="flex items-center gap-2"
+                >
+                  <MicOff className="h-4 w-4" />
+                  Stop Listening
+                </Button>
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  onClick={() => handleSend()}
+                  disabled={!transcribedText.trim()}
+                  className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Submit
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* No more flame animation during AI speech */}
-      {isListening && (
-        <div className="absolute bottom-72 left-0 right-0 flex flex-col items-center justify-center">
-          <PulsingFlame isActive={isListening} />
-          <p className="text-primary animate-pulse mt-2 font-medium">Listening...</p>
-        </div>
-      )}
-
-      {/* Text input mode UI */}
+      {/* Text input mode UI - Adjusted for better positioning */}
       {showTextInput && !isListening && (
-        <div className="fixed bottom-4 left-0 right-0 mx-auto w-full max-w-3xl px-4">
-          <div className="flex gap-2 items-center">
+        <div className="fixed bottom-0 left-0 right-0 mx-auto w-full bg-background/95 backdrop-blur-md border-t border-primary/20 p-4">
+          <div className="flex gap-2 items-center max-w-3xl mx-auto">
             <input 
               type="text" 
               value={currentInput}
@@ -259,7 +256,7 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
                 }
               }}
               placeholder="Type your message..." 
-              className="flex-grow p-3 rounded-lg border border-primary/20 bg-background/80 backdrop-blur-sm focus:border-primary"
+              className="flex-grow p-3 rounded-lg border border-primary/20 bg-background focus:border-primary"
             />
             <Button 
               onClick={() => {
@@ -283,28 +280,24 @@ export const ChatInterface = ({ onSend, userId }: ChatInterfaceProps) => {
         </div>
       )}
 
-      {/* Interaction buttons */}
-      {!isListening && (
-        <div className="fixed bottom-4 left-0 right-0 flex justify-center gap-4">
-          {!showTextInput && (
-            <Button
-              onClick={toggleTextInput}
-              className="rounded-full h-12 w-12 bg-primary/80 hover:bg-primary/90 text-primary-foreground shadow-md"
-              size="icon"
-            >
-              <MessageSquare className="h-6 w-6" />
-            </Button>
-          )}
+      {/* Interaction buttons - Adjusted positioning */}
+      {!isListening && !showTextInput && (
+        <div className="fixed bottom-4 left-0 right-0 flex justify-center gap-4 z-10">
+          <Button
+            onClick={toggleTextInput}
+            className="rounded-full h-12 w-12 bg-primary/80 hover:bg-primary/90 text-primary-foreground shadow-md"
+            size="icon"
+          >
+            <MessageSquare className="h-6 w-6" />
+          </Button>
           
-          {!showTextInput && (
-            <Button
-              onClick={toggleListening}
-              className="rounded-full h-12 w-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md"
-              size="icon"
-            >
-              <Mic className="h-6 w-6" />
-            </Button>
-          )}
+          <Button
+            onClick={toggleListening}
+            className="rounded-full h-12 w-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md"
+            size="icon"
+          >
+            <Mic className="h-6 w-6" />
+          </Button>
         </div>
       )}
     </div>
