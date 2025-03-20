@@ -70,7 +70,7 @@ const Settings = () => {
     <div className="min-h-screen bg-background">
       <AppNavbar currentPage="settings" />
       
-      <div className="container max-w-2xl mx-auto pt-8 pb-16 px-4 md:pl-64">
+      <div className="container mx-auto pt-8 pb-16 px-4 md:pl-64 md:pr-4 max-w-2xl">
         <div className="flex items-center mb-6">
           <Button variant="ghost" size="icon" asChild className="mr-2">
             <Link to="/">

@@ -23,17 +23,42 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for saved user in localStorage
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (error) {
-        console.error("Error parsing saved user:", error);
-        localStorage.removeItem("user");
+    // Check for saved user in localStorage on page load
+    const checkUserAuth = () => {
+      setIsLoading(true);
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) {
+        try {
+          setUser(JSON.parse(savedUser));
+        } catch (error) {
+          console.error("Error parsing saved user:", error);
+          localStorage.removeItem("user");
+        }
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    };
+
+    checkUserAuth();
+    
+    // Listen for storage events (when localStorage changes in other tabs)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "user") {
+        if (e.newValue) {
+          try {
+            setUser(JSON.parse(e.newValue));
+          } catch (error) {
+            console.error("Error parsing user from storage event:", error);
+          }
+        } else {
+          setUser(null);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -74,11 +99,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           toast.success(`Welcome back, ${existingUser.name}!`);
           return true;
+        } else {
+          toast.error("No account found with this email");
+          return false;
         }
       }
       
-      // For demo, if no matching user, create one (for easier testing)
-      // In a real app, you'd reject the login
+      // If no users yet, create demo user for testing
       const userId = btoa(email).replace(/[^a-zA-Z0-9]/g, "");
       const newUser = {
         id: userId,

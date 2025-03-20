@@ -84,7 +84,7 @@ const UserProfile = () => {
     <div className="min-h-screen bg-background">
       <AppNavbar currentPage="profile" />
       
-      <div className="container max-w-2xl mx-auto pt-8 pb-16 px-4 md:pl-64">
+      <div className="container mx-auto pt-8 pb-16 px-4 md:pl-64 md:pr-4 max-w-2xl">
         <div className="flex items-center mb-6">
           <Button variant="ghost" size="icon" asChild className="mr-2">
             <Link to="/">
@@ -134,7 +134,7 @@ const UserProfile = () => {
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Health Information</h3>
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="age">Age</Label>
                     <Input 
@@ -156,7 +156,7 @@ const UserProfile = () => {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="height">Height (cm)</Label>
                     <Input 

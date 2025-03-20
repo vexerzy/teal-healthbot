@@ -119,7 +119,10 @@ const Index = () => {
             <h1 className="text-3xl font-bold text-primary mb-8 text-center">Welcome to Hearth</h1>
             
             <div className="grid md:grid-cols-2 gap-6 mt-8">
-              <Card className="p-6 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer border-primary/20" onClick={() => navigate('/chat')}>
+              <Card 
+                className="p-6 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer border-primary/20" 
+                onClick={() => navigate('/chat')}
+              >
                 <div className="flex flex-col items-center text-center gap-4">
                   <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
                     <MessageSquare className="h-8 w-8 text-primary" />
@@ -131,7 +134,10 @@ const Index = () => {
                 </div>
               </Card>
               
-              <Card className="p-6 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer border-primary/20" onClick={() => navigate('/profile')}>
+              <Card 
+                className="p-6 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer border-primary/20" 
+                onClick={() => navigate('/profile')}
+              >
                 <div className="flex flex-col items-center text-center gap-4">
                   <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
                     <User className="h-8 w-8 text-primary" />
@@ -143,7 +149,10 @@ const Index = () => {
                 </div>
               </Card>
               
-              <Card className="p-6 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer border-primary/20" onClick={() => navigate('/history')}>
+              <Card 
+                className="p-6 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer border-primary/20" 
+                onClick={() => navigate('/history')}
+              >
                 <div className="flex flex-col items-center text-center gap-4">
                   <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
                     <History className="h-8 w-8 text-primary" />
@@ -155,7 +164,10 @@ const Index = () => {
                 </div>
               </Card>
               
-              <Card className="p-6 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer border-primary/20" onClick={() => navigate('/settings')}>
+              <Card 
+                className="p-6 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer border-primary/20" 
+                onClick={() => navigate('/settings')}
+              >
                 <div className="flex flex-col items-center text-center gap-4">
                   <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
                     <Settings className="h-8 w-8 text-primary" />
