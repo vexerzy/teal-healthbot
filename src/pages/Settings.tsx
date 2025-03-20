@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Palette, 
   VolumeX, 
@@ -17,8 +17,10 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { AppNavbar } from "@/components/layout/AppNavbar";
+import { useUser } from "@/context/UserContext";
 
 const Settings = () => {
+  const { user } = useUser();
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem("theme");
     return saved || "teal";
@@ -35,6 +37,12 @@ const Settings = () => {
     const saved = localStorage.getItem("soundEnabled");
     return saved !== "false";
   });
+
+  useEffect(() => {
+    // Apply theme on load
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle("dark", darkMode);
+  }, [theme, darkMode]);
 
   const toggleTheme = () => {
     const newTheme = theme === "teal" ? "purple" : "teal";
