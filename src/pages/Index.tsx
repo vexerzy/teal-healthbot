@@ -67,6 +67,10 @@ const Index = () => {
     setShowHealthForm(false);
   };
 
+  const handleAboutClick = () => {
+    navigate("/about");
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -88,10 +92,13 @@ const Index = () => {
       <div className={`w-full flex flex-col items-center ${user ? "md:pl-64" : ""} transition-all`}>
         {showWelcome && (
           <div className="w-full max-w-none px-4 py-12 flex justify-center">
-            <WelcomeScreen onGetStarted={() => {
-              setShowWelcome(false);
-              setShowEmailForm(true);
-            }} />
+            <WelcomeScreen 
+              onGetStarted={() => {
+                setShowWelcome(false);
+                setShowEmailForm(true);
+              }} 
+              onAboutClick={handleAboutClick}
+            />
           </div>
         )}
         

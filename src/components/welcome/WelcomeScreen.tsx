@@ -2,13 +2,13 @@
 import { Brain, Bot, Shield, LogIn, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Link } from "react-router-dom";
 
 interface WelcomeScreenProps {
   onGetStarted: () => void;
+  onAboutClick: () => void;
 }
 
-export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
+export const WelcomeScreen = ({ onGetStarted, onAboutClick }: WelcomeScreenProps) => {
   return (
     <div className="max-w-4xl w-full space-y-8 animate-fadeIn">
       <div className="text-center space-y-4">
@@ -62,12 +62,10 @@ export const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
           variant="ghost"
           size="lg"
           className="flex items-center gap-2"
-          asChild
+          onClick={onAboutClick}
         >
-          <Link to="/about">
-            <Info className="w-4 h-4" />
-            About Hearth
-          </Link>
+          <Info className="w-4 h-4" />
+          About Hearth
         </Button>
       </div>
     </div>

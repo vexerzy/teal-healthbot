@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { 
   Home, 
   MessageSquare, 
@@ -23,7 +23,6 @@ type MobileMenuProps = {
 };
 
 export const MobileMenu = ({ currentPage }: MobileMenuProps) => {
-  const navigate = useNavigate();
   const { logout } = useUser();
   const [open, setOpen] = useState(false);
   
@@ -63,7 +62,6 @@ export const MobileMenu = ({ currentPage }: MobileMenuProps) => {
   const handleLogout = () => {
     logout();
     setOpen(false);
-    navigate("/");
   };
 
   return (
