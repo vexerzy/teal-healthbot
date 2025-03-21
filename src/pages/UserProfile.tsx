@@ -6,21 +6,25 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, UserRound, Mail, Save } from "lucide-react";
+import { ArrowLeft, UserRound, Mail, Save, CalendarIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppNavbar } from "@/components/layout/AppNavbar";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 const UserProfile = () => {
   const { user, isLoading, logout } = useUser();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [birthdate, setBirthdate] = useState<Date | undefined>(undefined);
   const [healthInfo, setHealthInfo] = useState({
-    age: "",
     weight: "",
     height: "",
-    sleepHours: "",
+    sleepHours: "7",
     conditions: ""
   });
   const [isEditing, setIsEditing] = useState(false);
@@ -43,6 +47,11 @@ const UserProfile = () => {
       if (savedHealthInfo) {
         const parsedInfo = JSON.parse(savedHealthInfo);
         setHealthInfo(parsedInfo);
+        
+        // Set birthdate if exists
+        if (parsedInfo.birthdate) {
+          setBirthdate(new Date(parsedInfo.birthdate));
+        }
         
         // Convert metric to imperial
         if (parsedInfo.height) {
@@ -82,14 +91,15 @@ const UserProfile = () => {
 
   const handleSave = () => {
     if (user) {
-      // In a real app, we would save this to a backend
-      // For now, we'll just update the localStorage data
+      // Save birthdate with health info
+      const updatedHealthInfo = {
+        ...healthInfo,
+        birthdate: birthdate ? birthdate.toISOString() : undefined
+      };
       
-      // Save health info
-      localStorage.setItem(`healthInfo-${user.id}`, JSON.stringify(healthInfo));
+      // Save to localStorage
+      localStorage.setItem(`healthInfo-${user.id}`, JSON.stringify(updatedHealthInfo));
       
-      // We can't really update the user record without a backend,
-      // but we could demonstrate the flow anyway
       toast.success("Profile updated successfully");
       setIsEditing(false);
     }
@@ -104,7 +114,7 @@ const UserProfile = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/");
+    // Note: The redirect is now handled in the UserContext logout function
   };
 
   const displayHeight = () => {
@@ -121,6 +131,20 @@ const UserProfile = () => {
     } else {
       return `${healthInfo.weight} kg`;
     }
+  };
+
+  const calculateAge = () => {
+    if (!birthdate) return "";
+    
+    const today = new Date();
+    let age = today.getFullYear() - birthdate.getFullYear();
+    const monthDifference = today.getMonth() - birthdate.getMonth();
+    
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthdate.getDate())) {
+      age--;
+    }
+    
+    return `${age} years`;
   };
 
   if (isLoading) {
@@ -209,17 +233,50 @@ const UserProfile = () => {
               )}
 
               <div className="space-y-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="birthdate">Date of Birth</Label>
+                  {isEditing ? (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          id="birthdate"
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !birthdate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {birthdate ? format(birthdate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={birthdate}
+                          onSelect={setBirthdate}
+                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    <div className="flex justify-between items-center">
+                      <Input 
+                        value={birthdate ? format(birthdate, "PPP") : "Not specified"}
+                        readOnly
+                      />
+                      {birthdate && (
+                        <div className="ml-4 text-sm text-muted-foreground">
+                          {calculateAge()}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="age">Age</Label>
-                    <Input 
-                      id="age" 
-                      value={healthInfo.age}
-                      onChange={(e) => handleHealthInfoChange("age", e.target.value)}
-                      readOnly={!isEditing}
-                    />
-                  </div>
-                  
                   <div className="grid gap-2">
                     <Label htmlFor="weight">Weight</Label>
                     {isEditing && units === "imperial" ? (
@@ -242,9 +299,7 @@ const UserProfile = () => {
                       />
                     )}
                   </div>
-                </div>
-                
-                <div className="grid sm:grid-cols-2 gap-4">
+                  
                   <div className="grid gap-2">
                     <Label htmlFor="height">Height</Label>
                     {isEditing && units === "imperial" ? (
@@ -283,16 +338,16 @@ const UserProfile = () => {
                       />
                     )}
                   </div>
-                  
-                  <div className="grid gap-2">
-                    <Label htmlFor="sleepHours">Sleep (hours)</Label>
-                    <Input 
-                      id="sleepHours" 
-                      value={healthInfo.sleepHours}
-                      onChange={(e) => handleHealthInfoChange("sleepHours", e.target.value)}
-                      readOnly={!isEditing}
-                    />
-                  </div>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="sleepHours">Sleep (hours)</Label>
+                  <Input 
+                    id="sleepHours" 
+                    value={healthInfo.sleepHours}
+                    onChange={(e) => handleHealthInfoChange("sleepHours", e.target.value)}
+                    readOnly={!isEditing}
+                  />
                 </div>
                 
                 <div className="grid gap-2">

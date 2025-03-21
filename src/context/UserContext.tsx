@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -5,12 +6,13 @@ interface User {
   id: string;
   name: string;
   email: string;
+  birthdate?: string;
 }
 
 interface UserContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string, otpCode?: string) => Promise<boolean>;
   signup: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
@@ -60,7 +62,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string, otpCode?: string): Promise<boolean> => {
     try {
       setIsLoading(true);
       
@@ -73,6 +75,17 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!password) {
         toast.error("Please enter your password");
         return false;
+      }
+
+      // For demo purposes, simulate 2FA validation
+      if (otpCode) {
+        // For demo, accept any 6-digit code
+        if (otpCode.length !== 6 || !/^\d+$/.test(otpCode)) {
+          toast.error("Invalid verification code");
+          return false;
+        }
+        // Successful 2FA verification
+        toast.success("Two-factor authentication successful");
       }
       
       // For demo purposes, check if we have a user with this email in localStorage
@@ -205,6 +218,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem("theme");
     setUser(null);
     toast.success("You have been logged out");
+    
+    // Force redirect to home by reloading the page
+    window.location.href = "/";
   };
 
   return (
