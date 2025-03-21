@@ -10,10 +10,17 @@ import { ArrowLeft, UserRound, Mail, Save, CalendarIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppNavbar } from "@/components/layout/AppNavbar";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 const UserProfile = () => {
   const { user, isLoading, logout } = useUser();
@@ -21,6 +28,16 @@ const UserProfile = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [birthdate, setBirthdate] = useState<Date | undefined>(undefined);
+  const [manualDateInput, setManualDateInput] = useState("");
+  const [calendar, setCalendar] = useState<{
+    month: Date;
+    year: number;
+    view: "day" | "month" | "year";
+  }>({
+    month: new Date(),
+    year: new Date().getFullYear(),
+    view: "day",
+  });
   const [healthInfo, setHealthInfo] = useState({
     weight: "",
     height: "",
@@ -50,7 +67,14 @@ const UserProfile = () => {
         
         // Set birthdate if exists
         if (parsedInfo.birthdate) {
-          setBirthdate(new Date(parsedInfo.birthdate));
+          const date = new Date(parsedInfo.birthdate);
+          setBirthdate(date);
+          setManualDateInput(format(date, "yyyy-MM-dd"));
+          setCalendar({ 
+            month: date, 
+            year: date.getFullYear(),
+            view: "day" 
+          });
         }
         
         // Convert metric to imperial
@@ -147,6 +171,53 @@ const UserProfile = () => {
     return `${age} years`;
   };
 
+  // Handle manual date input
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    setManualDateInput(inputValue);
+    
+    // Try to parse the date
+    try {
+      if (inputValue) {
+        const parsedDate = parse(inputValue, "yyyy-MM-dd", new Date());
+        if (!isNaN(parsedDate.getTime())) {
+          setBirthdate(parsedDate);
+          setCalendar({
+            month: parsedDate,
+            year: parsedDate.getFullYear(),
+            view: "day"
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Invalid date format:", error);
+    }
+  };
+
+  // Handle calendar view change
+  const handleCalendarViewChange = (view: "day" | "month" | "year") => {
+    setCalendar(prev => ({ ...prev, view }));
+  };
+
+  // Handle year selection
+  const handleYearSelect = (year: number) => {
+    setCalendar(prev => ({ 
+      ...prev, 
+      year,
+      view: "month"
+    }));
+  };
+
+  // Handle month selection
+  const handleMonthSelect = (month: number) => {
+    const newDate = new Date(calendar.year, month);
+    setCalendar(prev => ({ 
+      ...prev, 
+      month: newDate,
+      view: "day"
+    }));
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -158,6 +229,16 @@ const UserProfile = () => {
       </div>
     );
   }
+
+  // Generate year options: 100 years back from current year
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+  
+  // Month names
+  const months = [
+    "January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -236,31 +317,99 @@ const UserProfile = () => {
                 <div className="grid gap-2">
                   <Label htmlFor="birthdate">Date of Birth</Label>
                   {isEditing ? (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          id="birthdate"
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !birthdate && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {birthdate ? format(birthdate, "PPP") : <span>Pick a date</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={birthdate}
-                          onSelect={setBirthdate}
-                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Input
+                          id="birthdate-manual"
+                          type="date"
+                          value={manualDateInput}
+                          onChange={handleDateInputChange}
+                          className="flex-1"
                         />
-                      </PopoverContent>
-                    </Popover>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              id="birthdate"
+                              variant="outline"
+                              className="flex-none"
+                            >
+                              <CalendarIcon className="h-4 w-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            {calendar.view === "day" && (
+                              <div className="p-3">
+                                <div className="flex justify-between items-center mb-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleCalendarViewChange("month")}
+                                  >
+                                    {format(calendar.month, "MMMM yyyy")}
+                                  </Button>
+                                </div>
+                                <Calendar
+                                  mode="single"
+                                  selected={birthdate}
+                                  onSelect={setBirthdate}
+                                  month={calendar.month}
+                                  onMonthChange={(newMonth) => setCalendar(prev => ({ ...prev, month: newMonth }))}
+                                  disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                  initialFocus
+                                  className={cn("p-0 pointer-events-auto")}
+                                />
+                              </div>
+                            )}
+                            
+                            {calendar.view === "month" && (
+                              <div className="p-3">
+                                <div className="flex justify-between items-center mb-4">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleCalendarViewChange("year")}
+                                  >
+                                    {calendar.year}
+                                  </Button>
+                                </div>
+                                <div className="grid grid-cols-3 gap-2">
+                                  {months.map((month, idx) => (
+                                    <Button
+                                      key={month}
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleMonthSelect(idx)}
+                                      className="h-10"
+                                    >
+                                      {month.substring(0, 3)}
+                                    </Button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {calendar.view === "year" && (
+                              <div className="p-3">
+                                <div className="h-[300px] overflow-y-auto">
+                                  <div className="grid grid-cols-3 gap-2">
+                                    {years.map((year) => (
+                                      <Button
+                                        key={year}
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleYearSelect(year)}
+                                      >
+                                        {year}
+                                      </Button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
                   ) : (
                     <div className="flex justify-between items-center">
                       <Input 
